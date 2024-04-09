@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">compose-test</string>
+    <string name="title_activity_sign_in_screen">SignInScreen</string>
+</resources>
