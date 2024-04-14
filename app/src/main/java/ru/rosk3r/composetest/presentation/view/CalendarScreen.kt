@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
 import ru.rosk3r.composetest.domain.model.Task
+import ru.rosk3r.composetest.presentation.components.CalendarBody
+import ru.rosk3r.composetest.presentation.components.CalendarHeader
 import ru.rosk3r.composetest.presentation.components.MyNavigationBar
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -86,83 +88,3 @@ fun CalendarScreen(navController: NavController) {
     }
 }
 
-@Composable
-fun CalendarHeader() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val currentMonth = remember { LocalDateTime.now().month }
-        val monthName = currentMonth.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        val currentYear = remember { LocalDate.now().year }
-
-        Text(
-            text = "$monthName $currentYear",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = 16.dp)
-        )
-        IconButton(
-            onClick = { /* Handle calendar navigation */ },
-            modifier = Modifier.padding(end = 16.dp)
-        ) {
-//            Icon(Icons.Filled.CalendarToday, contentDescription = "Calendar")
-        }
-    }
-}
-
-@Composable
-fun calculateBackgroundColor(taskCount: Int, isCurrentMonth: Boolean): Color {
-    return if (isCurrentMonth) {
-        when {
-            taskCount > 3 -> colorResource(R.color.accent)
-            taskCount > 0 -> colorResource(R.color.background)
-            else -> Color.Transparent
-        }
-    } else {
-        Color.Gray
-    }
-}
-
-
-@Composable
-fun CalendarBody(tasks: List<Task>) {
-    val today = remember { LocalDate.now() }
-    val yearMonth = YearMonth.now()
-    val weeksInMonth = yearMonth.lengthOfMonth() / 7
-
-    val tasksByDate = tasks.groupBy { it.createdAt }
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        repeat(weeksInMonth) { weekIndex ->
-            Row {
-                repeat(7) { dayIndex ->
-                    val day = weekIndex * 7 + dayIndex + 1
-                    val date = yearMonth.atDay(day)
-                    val isCurrentMonth = date.month == yearMonth.month
-                    val taskCount = tasksByDate[date]?.count { !it.isCompleted } ?: 0
-
-                    Box(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(calculateBackgroundColor(taskCount, isCurrentMonth)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = date.dayOfMonth.toString(),
-                            fontSize = 16.sp,
-                            color = if (date == today) Color.White else Color.Black
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
