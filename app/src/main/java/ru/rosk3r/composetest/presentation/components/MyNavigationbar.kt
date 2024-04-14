@@ -3,6 +3,7 @@ package ru.rosk3r.composetest.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material3.BottomAppBar
@@ -35,7 +36,7 @@ fun MyNavigationBar(
         containerColor = colorResource(id = R.color.background),
         modifier = Modifier
             .padding(start = 12.dp, end = 12.dp)
-            .clip(shape = CircleShape)
+            .clip(shape = RoundedCornerShape(30.dp))
             .height(60.dp),
         content = {
             Row(
@@ -55,7 +56,7 @@ fun MyNavigationBar(
                                 verticalArrangement = Arrangement.Center,
                                 modifier = Modifier
                                     .size(58.dp)
-                                    .clip(shape = CircleShape)
+                                    .clip(shape = RoundedCornerShape(30.dp))
                                     .background(
                                     color = if (selectedTab == index) {
                                         colorResource(id = R.color.darkBackground)
