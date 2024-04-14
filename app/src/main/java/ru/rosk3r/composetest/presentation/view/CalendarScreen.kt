@@ -134,7 +134,6 @@ fun CalendarBody(tasks: List<Task>) {
     val weeksInMonth = yearMonth.lengthOfMonth() / 7
 
     val tasksByDate = tasks.groupBy { it.createdAt }
-    val maxTasksByDate = tasksByDate.maxByOrNull { it.value.count { task -> !task.isCompleted } }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
