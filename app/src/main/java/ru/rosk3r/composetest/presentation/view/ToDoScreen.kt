@@ -23,6 +23,7 @@ import ru.rosk3r.composetest.domain.model.Task
 import ru.rosk3r.composetest.presentation.components.MyNavigationBar
 import ru.rosk3r.composetest.presentation.components.TaskList
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -62,12 +63,18 @@ fun ToDoScreen(navController: NavController) {
             // List of tasks
             TaskList(
                 tasks = listOf(
-                    Task(title = "Task 1", isCompleted = false, createdAt = LocalDate.now()),
                     Task(
-                        title = "Task 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncation",
-                        isCompleted = true, createdAt = LocalDate.now()
+                        id = 1,
+                        title = "Task 1",
+                        isCompleted = false,
+                        createdAt = LocalDateTime.now()
                     ),
-                    Task(title = "Task 3", isCompleted = false, createdAt = LocalDate.now())
+                    Task(
+                        id = 2,
+                        title = "Task 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncation",
+                        isCompleted = true, createdAt = LocalDateTime.now()
+                    ),
+                    Task(id = 1, title = "Task 3", isCompleted = false, createdAt = LocalDateTime.now())
                 )
             )
         }

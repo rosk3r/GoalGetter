@@ -95,7 +95,7 @@ fun TaskItem(task: Task, onDelete: () -> Unit, onEdit: () -> Unit) {
 
                 // Date
                 Text(
-                    text = task.createdAt.toString(),
+                    text = task.createdAt.toLocalDate().toString(),
                     fontSize = 14.sp,
                     color = Color.Black,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp)

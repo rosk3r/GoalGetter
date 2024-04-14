@@ -77,7 +77,7 @@ fun CalendarBody(tasks: List<Task>) {
     val yearMonth = YearMonth.now()
     val weeksInMonth = yearMonth.lengthOfMonth() / 7
 
-    val tasksByDate = tasks.groupBy { it.createdAt }
+    val tasksByDate = tasks.groupBy { it.createdAt.toLocalDate() }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
