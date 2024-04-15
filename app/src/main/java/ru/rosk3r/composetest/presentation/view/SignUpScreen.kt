@@ -33,14 +33,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
+import ru.rosk3r.composetest.data.local.SessionDao
+import ru.rosk3r.composetest.data.remote.dto.request.SignInRequest
+import ru.rosk3r.composetest.data.remote.dto.request.SignUpRequest
+import ru.rosk3r.composetest.data.remote.repository.SessionRepository
+import ru.rosk3r.composetest.domain.model.Session
+import ru.rosk3r.composetest.util.GoalGetterDatabase
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(navController: NavController, database: GoalGetterDatabase) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    var session: Session?
 
     Box(
         modifier = Modifier
@@ -154,8 +162,16 @@ fun SignUpScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // Perform signup logic here
-                    // For demonstration purposes, let's navigate to another screen
+                    val thread = Thread {
+                        val signUpRequest = SignUpRequest(username, email, password)
+                        session = signUpRequest.request()
+
+                        session?.let { database.sessionDao().insert(it) }
+                        println("hui: $session")
+                    }
+                    thread.start()
+                    thread.join()
+
                     navController.navigate("screen_1")
                 },
                 colors = ButtonDefaults.buttonColors(

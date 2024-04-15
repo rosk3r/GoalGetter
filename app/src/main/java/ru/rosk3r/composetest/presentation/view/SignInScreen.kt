@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
+import ru.rosk3r.composetest.data.remote.dto.request.SignInRequest
+import ru.rosk3r.composetest.domain.model.Session
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -43,19 +45,7 @@ fun SignInScreen(navController: NavController) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
 
-    val tabs = listOf(
-        "To Do's" to R.drawable.logo,
-        "Archive" to R.drawable.logo,
-        "Calendar" to R.drawable.logo,
-        "Goals" to R.drawable.logo,
-        "Settings" to R.drawable.logo
-    )
-    var selectedTab = 0
-    val onTabSelected: (Int) -> Unit = { index ->
-        // Обработка выбора вкладки, например, изменение состояния выбранной вкладки
-        selectedTab = index
-    }
-
+    var session: Session? = null
 
     Box(
         modifier = Modifier
@@ -145,8 +135,13 @@ fun SignInScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // Perform login logic here
-                    // For demonstration purposes, let's navigate to another screen
+                    val thread = Thread {
+                        val signUpRequest = SignInRequest(username, password)
+                        session = signUpRequest.request()
+                    }
+                    thread.start()
+                    thread.join()
+
                     navController.navigate("screen_1")
                 },
                 colors = ButtonDefaults.buttonColors(
