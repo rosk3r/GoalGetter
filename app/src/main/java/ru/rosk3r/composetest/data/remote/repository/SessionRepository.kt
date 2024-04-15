@@ -1,14 +1,17 @@
 package ru.rosk3r.composetest.data.remote.repository
 
-import ru.rosk3r.composetest.data.local.SessionDao
+import kotlinx.coroutines.flow.Flow
 import ru.rosk3r.composetest.domain.model.Session
+import ru.rosk3r.composetest.domain.model.Task
 
-class SessionRepository(
-    private val sessionDao: SessionDao
-) {
+interface SessionRepository {
 
-    suspend fun insert(session: Session) {
-        sessionDao.insert(session)
-    }
+    fun getAllSessionStream(): Flow<List<Session>>
+    fun getSessionStream(id: Long): Flow<Session?>
+    fun hasAnyRecords(): Boolean
+    fun getOne(): Session
+    suspend fun insertSession(session: Session)
+    suspend fun deleteSession(session: Session)
+    suspend fun updateSession(session: Session)
 
 }
