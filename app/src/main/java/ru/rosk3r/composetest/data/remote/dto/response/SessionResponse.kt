@@ -1,4 +1,4 @@
-package ru.rosk3r.composetest.domain.response
+package ru.rosk3r.composetest.data.remote.dto.response
 
 data class SessionResponse(
     val id: Long,

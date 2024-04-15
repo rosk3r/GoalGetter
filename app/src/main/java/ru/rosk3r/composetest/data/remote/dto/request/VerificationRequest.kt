@@ -1,4 +1,4 @@
-package ru.rosk3r.composetest.domain.request
+package ru.rosk3r.composetest.data.remote.dto.request
 
 import com.google.gson.Gson
 import okhttp3.Call
@@ -10,7 +10,7 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
-import ru.rosk3r.composetest.domain.response.SessionResponse
+import ru.rosk3r.composetest.data.remote.dto.response.SessionResponse
 import java.io.IOException
 
 data class VerificationRequest(

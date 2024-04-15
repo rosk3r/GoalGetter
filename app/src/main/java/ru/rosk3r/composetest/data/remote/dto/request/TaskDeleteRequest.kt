@@ -1,4 +1,4 @@
-package ru.rosk3r.composetest.domain.request
+package ru.rosk3r.composetest.data.remote.dto.request
 
 import okhttp3.OkHttpClient
 import okhttp3.Request

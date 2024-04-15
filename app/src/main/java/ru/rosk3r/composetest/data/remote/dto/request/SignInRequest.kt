@@ -1,4 +1,4 @@
-package ru.rosk3r.composetest.domain.request
+package ru.rosk3r.composetest.data.remote.dto.request
 
 import com.google.gson.Gson
 import okhttp3.Call
@@ -11,23 +11,20 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import ru.rosk3r.composetest.domain.model.Session
-import ru.rosk3r.composetest.domain.response.SessionResponse
+import ru.rosk3r.composetest.data.remote.dto.response.SessionResponse
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
-class SignUpRequest(
+data class SignInRequest(
     private val login: String,
-    private val email: String,
-    private val password: String
+    private val password: String,
 ) {
     fun request(): Session? {
         val okHttpClient = OkHttpClient()
 
         val json = JSONObject()
-        json.put("username", login)
-        json.put("email", email)
+        json.put("email", login)
         json.put("password", password)
-        json.put("code", "123")
 
         // Создаем тело запроса из JSON-объекта
         val requestBody: RequestBody = json.toString()
@@ -36,7 +33,7 @@ class SignUpRequest(
         val request = Request.Builder()
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
-            .url("https://pumped-tough-sunbeam.ngrok-free.app/sign-up")
+            .url("https://pumped-tough-sunbeam.ngrok-free.app/sign-in")
             .build()
 
         val latch = CountDownLatch(1)
@@ -61,7 +58,7 @@ class SignUpRequest(
                 // Попытка разбора JSON-ответа и извлечения токена
                 try {
                     val sessionResponse = Gson().fromJson(responseData, SessionResponse::class.java)
-                    session = Session(sessionResponse.token)
+                    session = Session(sessionResponse.id, sessionResponse.token)
                 } catch (e: Exception) {
                     println("Ошибка при извлечении токена: ${e.message}")
                 } finally {
