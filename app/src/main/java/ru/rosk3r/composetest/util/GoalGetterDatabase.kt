@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import ru.rosk3r.composetest.data.local.SessionDao
 import ru.rosk3r.composetest.data.local.TaskDao
 import ru.rosk3r.composetest.data.local.UserDao
@@ -12,6 +13,7 @@ import ru.rosk3r.composetest.domain.model.Task
 import ru.rosk3r.composetest.domain.model.User
 
 @Database(entities = [Session::class, Task::class, User::class], version = 1)
+@TypeConverters(Converters::class)
 abstract class GoalGetterDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao

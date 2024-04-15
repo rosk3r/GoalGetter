@@ -1,5 +1,6 @@
 package ru.rosk3r.composetest.presentation.view
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,15 +36,18 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
 import ru.rosk3r.composetest.data.remote.dto.request.SignInRequest
+import ru.rosk3r.composetest.data.remote.dto.request.SignUpRequest
 import ru.rosk3r.composetest.domain.model.Session
+import ru.rosk3r.composetest.presentation.components.myToast
+import ru.rosk3r.composetest.util.GoalGetterDatabase
+import ru.rosk3r.composetest.util.isValidEmail
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignInScreen(navController: NavController) {
+fun SignInScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
-    val context = LocalContext.current
 
     var session: Session? = null
 
@@ -135,14 +139,24 @@ fun SignInScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    val thread = Thread {
-                        val signUpRequest = SignInRequest(username, password)
-                        session = signUpRequest.request()
+                    if (username.isEmpty() or password.isEmpty()) {
+                        myToast(context, "some field is empty")
                     }
-                    thread.start()
-                    thread.join()
 
-                    navController.navigate("screen_1")
+                    if (username.isNotEmpty() and password.isNotEmpty()) {
+                        val thread = Thread {
+                            val signInRequest = SignInRequest(username, password)
+                            session = signInRequest.request()
+
+                            session?.let { database.sessionDao().insert(it) }
+                            navController.navigate("screen_1")
+                        }
+                        thread.start()
+                        thread.join()
+
+                        myToast(context, "welcome back")
+                        navController.navigate("screen_1")
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF97aba1)

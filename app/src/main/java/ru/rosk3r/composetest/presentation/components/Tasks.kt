@@ -36,11 +36,11 @@ import ru.rosk3r.composetest.R
 import ru.rosk3r.composetest.domain.model.Task
 
 @Composable
-fun TaskList(tasks: List<Task>) {
+fun TaskList(tasks: List<Task>?) {
     Column(
         modifier = Modifier.verticalScroll(ScrollState(0))
     ) {
-        tasks.forEach { task ->
+        tasks?.forEach { task ->
             TaskItem(
                 task = task,
                 onDelete = { /* логика удаления задачи */ },

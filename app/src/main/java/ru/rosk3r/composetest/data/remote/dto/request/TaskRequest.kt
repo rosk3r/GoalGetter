@@ -4,16 +4,16 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import ru.rosk3r.composetest.data.remote.dto.response.TaskResponse
+import ru.rosk3r.composetest.domain.model.Task
 import java.io.IOException
 
 
 class TaskRequest(
     private val token: String
 ) {
-    fun request(taskRequest: TaskRequest): List<TaskResponse>? {
+    fun request(taskRequest: TaskRequest): List<Task>? {
         val okHttpClient = OkHttpClient()
-        val tasks: List<TaskResponse>
+        val tasks: List<Task>
 
         val request = Request.Builder()
             .get()
@@ -34,8 +34,8 @@ class TaskRequest(
 
             // Попытка разбора JSON-ответа и извлечения списка задач
             try {
-                val itemType = object : TypeToken<List<TaskResponse>>() {}.type
-                tasks = Gson().fromJson<List<TaskResponse>>(responseData, itemType)
+                val itemType = object : TypeToken<List<Task>>() {}.type
+                tasks = Gson().fromJson<List<Task>>(responseData, itemType)
                 return tasks
             } catch (e: Exception) {
                 println("Ошибка при извлечении списка задач: ${e.message}")

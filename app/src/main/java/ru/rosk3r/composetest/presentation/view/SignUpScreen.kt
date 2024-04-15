@@ -1,5 +1,6 @@
 package ru.rosk3r.composetest.presentation.view
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,16 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
-import ru.rosk3r.composetest.data.local.SessionDao
-import ru.rosk3r.composetest.data.remote.dto.request.SignInRequest
 import ru.rosk3r.composetest.data.remote.dto.request.SignUpRequest
-import ru.rosk3r.composetest.data.remote.repository.SessionRepository
 import ru.rosk3r.composetest.domain.model.Session
+import ru.rosk3r.composetest.presentation.components.myToast
 import ru.rosk3r.composetest.util.GoalGetterDatabase
+import ru.rosk3r.composetest.util.isValidEmail
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SignUpScreen(navController: NavController, database: GoalGetterDatabase) {
+fun SignUpScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -162,17 +162,28 @@ fun SignUpScreen(navController: NavController, database: GoalGetterDatabase) {
 
             Button(
                 onClick = {
-                    val thread = Thread {
-                        val signUpRequest = SignUpRequest(username, email, password)
-                        session = signUpRequest.request()
-
-                        session?.let { database.sessionDao().insert(it) }
-                        println("hui: $session")
+                    if (username.isEmpty() or email.isEmpty() or password.isEmpty()) {
+                        myToast(context, "some field is empty")
                     }
-                    thread.start()
-                    thread.join()
 
-                    navController.navigate("screen_1")
+                    if(!email.isValidEmail()) {
+                        myToast(context, "email is incorrect")
+                    }
+
+                    if (username.isNotEmpty() and  email.isNotEmpty() and
+                        email.isValidEmail() and password.isNotEmpty()) {
+                        val thread = Thread {
+                            val signUpRequest = SignUpRequest(username, email, password)
+                            session = signUpRequest.request()
+
+                            session?.let { database.sessionDao().insert(it) }
+                        }
+                        thread.start()
+                        thread.join()
+
+                        myToast(context, "user ${username}, created")
+                        navController.navigate("screen_1")
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF97aba1)

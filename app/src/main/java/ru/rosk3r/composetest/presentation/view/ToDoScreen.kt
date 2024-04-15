@@ -1,5 +1,6 @@
 package ru.rosk3r.composetest.presentation.view
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,16 +20,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
+import ru.rosk3r.composetest.data.remote.dto.request.TaskRequest
 import ru.rosk3r.composetest.domain.model.Task
 import ru.rosk3r.composetest.presentation.components.MyNavigationBar
 import ru.rosk3r.composetest.presentation.components.TaskList
-import java.time.LocalDate
-import java.time.LocalDateTime
+import ru.rosk3r.composetest.util.GoalGetterDatabase
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ToDoScreen(navController: NavController) {
+fun ToDoScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 0
+    var tasks: List<Task>? = null
+
+    val thread = Thread {
+        val session = database.sessionDao().getOne()
+        val taskRequest = TaskRequest(session.token)
+        tasks = taskRequest.request(taskRequest)
+
+        tasks?.forEach { task ->
+            database.taskDao().insert(task)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -60,23 +72,11 @@ fun ToDoScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(it) // Use it instead of a fixed padding value
         ) {
+
+            thread.start()
+            thread.join()
             // List of tasks
-            TaskList(
-                tasks = listOf(
-                    Task(
-                        id = 1,
-                        title = "Task 1",
-                        isCompleted = false,
-                        createdAt = LocalDateTime.now()
-                    ),
-                    Task(
-                        id = 2,
-                        title = "Task 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncation",
-                        isCompleted = true, createdAt = LocalDateTime.now()
-                    ),
-                    Task(id = 1, title = "Task 3", isCompleted = false, createdAt = LocalDateTime.now())
-                )
-            )
+            TaskList(tasks)
         }
     }
 }

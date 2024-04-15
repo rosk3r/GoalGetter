@@ -8,16 +8,16 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import ru.rosk3r.composetest.data.remote.dto.response.TaskResponse
+import ru.rosk3r.composetest.domain.model.Task
 import java.io.IOException
 
 class TaskCreateRequest(
     private val token: String,
     private val title: String,
 ) {
-    fun request(taskCreateRequest: TaskCreateRequest): List<TaskResponse>? {
+    fun request(taskCreateRequest: TaskCreateRequest): List<Task>? {
         val okHttpClient = OkHttpClient()
-        val tasks: List<TaskResponse>
+        val tasks: List<Task>
 
         val json = JSONObject()
         json.put("title", title)
@@ -44,8 +44,8 @@ class TaskCreateRequest(
 
             // Попытка разбора JSON-ответа и извлечения списка задач
             try {
-                val itemType = object : TypeToken<List<TaskResponse>>() {}.type
-                tasks = Gson().fromJson<List<TaskResponse>>(responseData, itemType)
+                val itemType = object : TypeToken<List<Task>>() {}.type
+                tasks = Gson().fromJson<List<Task>>(responseData, itemType)
                 return tasks
             } catch (e: Exception) {
                 println("Ошибка при извлечении списка задач: ${e.message}")

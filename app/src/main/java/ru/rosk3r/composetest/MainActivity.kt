@@ -1,13 +1,10 @@
 package ru.rosk3r.composetest
 
-import ru.rosk3r.composetest.presentation.view.SignInScreen
-import ru.rosk3r.composetest.presentation.view.SignUpScreen
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -19,6 +16,8 @@ import ru.rosk3r.composetest.presentation.view.ArchiveScreen
 import ru.rosk3r.composetest.presentation.view.CalendarScreen
 import ru.rosk3r.composetest.presentation.view.GoalScreen
 import ru.rosk3r.composetest.presentation.view.SettingsScreen
+import ru.rosk3r.composetest.presentation.view.SignInScreen
+import ru.rosk3r.composetest.presentation.view.SignUpScreen
 import ru.rosk3r.composetest.presentation.view.ToDoScreen
 import ru.rosk3r.composetest.util.GoalGetterDatabase
 
@@ -29,8 +28,23 @@ class MainActivity : ComponentActivity() {
         setStatusBarAndNavigationBarColor(Color(0xFF66756E), Color(0xFF66756E))
 
         setContent {
-            val startDestination = "signUp"
-            MyApp(startDestination)
+            val database = Room.databaseBuilder(
+                applicationContext,
+                GoalGetterDatabase::class.java, "CharacterDatabase"
+            ).build()
+
+            var startDestination = "signUp"
+            val thread = Thread() {
+                startDestination = if (database.sessionDao().hasAnyRecords()) {
+                    "screen_1"
+                } else {
+                    "signUp"
+                }
+            }
+            thread.start()
+            thread.join()
+
+            MyApp(startDestination, database)
         }
     }
 
@@ -46,44 +60,31 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(startDestination: String) {
+fun MyApp(startDestination: String, database: GoalGetterDatabase) {
     val navController = rememberNavController()
-    val database = provideDatabase()
+    val context = LocalContext.current
 
     NavHost(navController = navController, startDestination) {
         composable("signUp") {
-            SignUpScreen(navController, database)
+            SignUpScreen(navController, context, database)
         }
         composable("signIn") {
-            SignInScreen(navController)
+            SignInScreen(navController, context, database)
         }
         composable("screen_1") {
-            ToDoScreen(navController)
+            ToDoScreen(navController, context, database)
         }
         composable("screen_2") {
-            ArchiveScreen(navController)
+            ArchiveScreen(navController, context, database)
         }
         composable("screen_3") {
-            CalendarScreen(navController)
+            CalendarScreen(navController, context, database)
         }
         composable("screen_4") {
-            GoalScreen(navController)
+            GoalScreen(navController, context, database)
         }
         composable("screen_5") {
-            SettingsScreen(navController)
+            SettingsScreen(navController, context, database)
         }
     }
 }
-
-@Composable
-fun provideDatabase(): GoalGetterDatabase {
-    val context = LocalContext.current
-    return remember {
-        Room.databaseBuilder(
-            context.applicationContext,
-            GoalGetterDatabase::class.java,
-            "app_database"
-        ).build()
-    }
-}
-

@@ -1,5 +1,6 @@
 package ru.rosk3r.composetest.presentation.view
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,10 +21,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.composetest.R
 import ru.rosk3r.composetest.presentation.components.MyNavigationBar
+import ru.rosk3r.composetest.util.GoalGetterDatabase
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ArchiveScreen(navController: NavController) {
+fun ArchiveScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 1
 
     Scaffold(

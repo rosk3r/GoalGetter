@@ -1,5 +1,6 @@
 package ru.rosk3r.composetest.presentation.view
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,11 +25,12 @@ import ru.rosk3r.composetest.domain.model.Task
 import ru.rosk3r.composetest.presentation.components.CalendarBody
 import ru.rosk3r.composetest.presentation.components.CalendarHeader
 import ru.rosk3r.composetest.presentation.components.MyNavigationBar
+import ru.rosk3r.composetest.util.GoalGetterDatabase
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Composable
-fun CalendarScreen(navController: NavController) {
+fun CalendarScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 2
 
     Scaffold(
