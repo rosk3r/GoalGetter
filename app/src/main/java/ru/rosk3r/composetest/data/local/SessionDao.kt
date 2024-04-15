@@ -8,12 +8,22 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ru.rosk3r.composetest.domain.model.Session
+import ru.rosk3r.composetest.domain.model.Task
 
 @Dao
 interface SessionDao {
 
-    @Query("SELECT * FROM Session")
+    @Query("SELECT * FROM t_sessions")
     fun getAll(): Flow<List<Session>>
+
+    @Query("SELECT * FROM t_sessions WHERE id = :id")
+    fun getById(id: Long): Flow<Session>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM t_sessions LIMIT 1)")
+    fun hasAnyRecords(): Boolean
+
+    @Query("SELECT * FROM t_sessions LIMIT 1")
+    fun getOne(): Session
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(session: Session)
