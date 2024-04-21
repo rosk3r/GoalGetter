@@ -7,9 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +32,7 @@ import ru.rosk3r.composetest.R
 import ru.rosk3r.composetest.data.remote.dto.request.TaskRequest
 import ru.rosk3r.composetest.domain.model.Task
 import ru.rosk3r.composetest.presentation.components.MyNavigationBar
+import ru.rosk3r.composetest.presentation.components.NewTaskDialog
 import ru.rosk3r.composetest.presentation.components.TaskList
 import ru.rosk3r.composetest.util.GoalGetterDatabase
 
@@ -31,16 +41,19 @@ import ru.rosk3r.composetest.util.GoalGetterDatabase
 fun ToDoScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 0
     var tasks: List<Task>? = null
+    val openDialog = remember { mutableStateOf(false) }
 
-    val thread = Thread {
-        val session = database.sessionDao().getOne()
-        val taskRequest = TaskRequest(session.token)
-        tasks = taskRequest.request(taskRequest)
-
-        tasks?.forEach { task ->
-            database.taskDao().insert(task)
-        }
-    }
+//    val thread = Thread {
+//        val session = database.sessionDao().getOne()
+//        val taskRequest = TaskRequest(session.token)
+//        tasks = taskRequest.request(taskRequest)
+//
+//        tasks?.forEach { task ->
+//            database.taskDao().insert(task)
+//        }
+//    }
+//    thread.start()
+//    thread.join()
 
     Scaffold(
         topBar = {
@@ -72,11 +85,33 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 .fillMaxSize()
                 .padding(it) // Use it instead of a fixed padding value
         ) {
-
-            thread.start()
-            thread.join()
             // List of tasks
             TaskList(tasks)
+
+            FloatingActionButton(
+                onClick = {
+                    openDialog.value = true
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 16.dp, end = 16.dp),
+                contentColor = colorResource(id = R.color.white),
+                containerColor = colorResource(id = R.color.background),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add Task",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            )
         }
     }
+    NewTaskDialog(
+        openDialog = openDialog,
+        onSave = { title ->
+            // Ваша логика сохранения новой задачи
+        }
+    )
 }
