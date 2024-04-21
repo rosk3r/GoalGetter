@@ -32,9 +32,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import ru.rosk3r.goalgetter.R
-import ru.rosk3r.goalgetter.data.remote.dto.request.TaskCreateRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskEditRequest
 import ru.rosk3r.goalgetter.domain.model.Task
@@ -70,7 +68,8 @@ fun TaskItem(
     onEdit: (Task) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val openDialog = remember { mutableStateOf(false) }
+    val openEditDialog = remember { mutableStateOf(false) }
+    val openDeleteDialog = remember { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -124,33 +123,21 @@ fun TaskItem(
                 ) {
                     IconButton(
                         onClick = {
-                            openDialog.value = true
+                            openEditDialog.value = true
                         }
                     ) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
                     IconButton(
                         onClick = {
-                            val thread = Thread {
-                                val session = database.sessionDao().getOne()
-                                val taskRequest = TaskDeleteRequest(session.token, task.id)
-                                taskRequest.request(taskRequest)
-
-                                database.taskDao().delete(task)
-                            }
-                            thread.start()
-                            thread.join()
-
-                            expanded = !expanded
-                            // Сообщаем родительскому компоненту, что задача удалена
-                            onDelete(task)
+                            openDeleteDialog.value = true
                         }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete")
                     }
                 }
-                if (openDialog.value) {
+                if (openEditDialog.value) {
                     EditTaskDialog(
-                        openDialog = openDialog, // Передаем состояние диалога
+                        openDialog = openEditDialog, // Передаем состояние диалога
                         onEdit = { title ->
                             // Обрабатываем редактирование
                             val thread = Thread {
@@ -166,7 +153,34 @@ fun TaskItem(
                             thread.start()
                             thread.join()
 
-                            openDialog.value = false // Закрываем диалог после редактирования
+                            openEditDialog.value = false // Закрываем диалог после редактирования
+                            expanded = !expanded
+                        },
+                        onCancel = {
+                            expanded = !expanded
+                        }
+                    )
+                }
+
+                if (openDeleteDialog.value) {
+                    TaskDeleteDialog(
+                        openDialog = openDeleteDialog,
+                        onDelete = {
+                            val thread = Thread {
+                                val session = database.sessionDao().getOne()
+                                val taskRequest = TaskDeleteRequest(session.token, task.id)
+                                taskRequest.request(taskRequest)
+
+                                database.taskDao().delete(task)
+                            }
+                            thread.start()
+                            thread.join()
+
+                            openEditDialog.value = false
+                            expanded = !expanded
+                            onDelete(task)
+                        },
+                        onCancel = {
                             expanded = !expanded
                         }
                     )
@@ -175,3 +189,4 @@ fun TaskItem(
         }
     }
 }
+

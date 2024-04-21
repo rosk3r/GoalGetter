@@ -34,19 +34,53 @@ import androidx.compose.ui.window.Dialog
 import ru.rosk3r.goalgetter.R
 
 @Composable
-fun MyAlertDialog() {
-    val openDialog = remember { mutableStateOf(false) }
-
+fun TaskDeleteDialog(
+    openDialog: MutableState<Boolean>,
+    onDelete: (Boolean) -> Unit,
+    onCancel: (Boolean) -> Unit
+) {
     if (openDialog.value) {
         AlertDialog(
             onDismissRequest = { openDialog.value = false },
-            title = { Text(text = "Подтверждение действия") },
-            text = { Text("Вы действительно хотите удалить выбранный элемент?") },
-            confirmButton = {
-                Button({ openDialog.value = false }) {
-                    Text("OK", fontSize = 22.sp)
+            containerColor = colorResource(id = R.color.darkBackground),
+            title = {
+                Text(
+                    text = "Confirmation of action",
+                    color = Color.White
+                )
+            },
+            text = {
+                Text(
+                    "Do you really want to delete the selected item?",
+                    color = Color.White
+                )
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        openDialog.value = false
+                        onCancel(true)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.background)
+                    )
+                ) {
+                    Text("Cancel", fontSize = 22.sp)
                 }
-            }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        openDialog.value = false
+                        onDelete(true)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.background)
+                    )
+                ) {
+                    Text("Ok", fontSize = 22.sp)
+                }
+            },
         )
     }
 }
@@ -111,7 +145,9 @@ fun NewTaskDialog(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
-                            onClick = { openDialog.value = false },
+                            onClick = {
+                                openDialog.value = false
+                            },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF97aba1)
                             )
@@ -128,7 +164,8 @@ fun NewTaskDialog(
 @Composable
 fun EditTaskDialog(
     openDialog: MutableState<Boolean>,
-    onEdit: (String) -> Unit
+    onEdit: (String) -> Unit,
+    onCancel: (Boolean) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
 
@@ -185,7 +222,10 @@ fun EditTaskDialog(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
-                            onClick = { openDialog.value = false },
+                            onClick = {
+                                openDialog.value = false
+                                onCancel(true)
+                            },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF97aba1)
                             )
