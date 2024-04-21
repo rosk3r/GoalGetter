@@ -46,7 +46,7 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
     val thread = Thread {
         val session = database.sessionDao().getOne()
         val taskRequest = TaskRequest(session.token)
-        tasks = taskRequest.request(taskRequest)
+        tasks = taskRequest.request(taskRequest)?.reversed()
         database.taskDao().deleteAll()
 
         tasks?.forEach { task ->
