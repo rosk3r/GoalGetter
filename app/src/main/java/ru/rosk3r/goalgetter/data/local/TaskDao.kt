@@ -22,10 +22,10 @@ interface TaskDao {
     fun insert(task: Task)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(task: Task)
+    fun update(task: Task)
 
     @Delete
-    suspend fun delete(task: Task)
+    fun delete(task: Task)
 
     @Query("DELETE FROM t_tasks")
     fun deleteAll()

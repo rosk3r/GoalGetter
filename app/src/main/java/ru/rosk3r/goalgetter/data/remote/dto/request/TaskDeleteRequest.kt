@@ -14,7 +14,7 @@ data class TaskDeleteRequest(
             .delete()
             .addHeader("Content-Type", "application/json")
             .addHeader("token", taskDeleteRequest.token)
-            .url("https://pumped-tough-sunbeam.ngrok-free.app/tasks/{$id}")
+            .url("https://pumped-tough-sunbeam.ngrok-free.app/tasks/$id")
             .build()
 
         val response = okHttpClient.newCall(request).execute()

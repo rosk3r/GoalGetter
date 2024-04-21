@@ -33,27 +33,36 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.rosk3r.goalgetter.R
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
 import ru.rosk3r.goalgetter.domain.model.Task
-import java.time.LocalDate
+import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 import java.time.LocalDateTime
 
 @Composable
-fun TaskList(tasks: List<Task>?) {
+fun TaskList(
+    tasks: List<Task>?,
+    database: GoalGetterDatabase,
+    onDelete: (Task) -> Unit
+) {
     Column(
         modifier = Modifier.verticalScroll(ScrollState(0))
     ) {
         tasks?.forEach { task ->
             TaskItem(
                 task = task,
-                onDelete = { /* логика удаления задачи */ },
-                onEdit = { /* логика редактирования задачи */ }
+                database = database,
+                onDelete = onDelete // Передаем обратный вызов на удаление
             )
         }
     }
 }
 
 @Composable
-fun TaskItem(task: Task, onDelete: () -> Unit, onEdit: () -> Unit) {
+fun TaskItem(
+    task: Task,
+    database: GoalGetterDatabase,
+    onDelete: (Task) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Box(
@@ -62,7 +71,7 @@ fun TaskItem(task: Task, onDelete: () -> Unit, onEdit: () -> Unit) {
             .padding(start = 16.dp, end = 16.dp)
             .clip(shape = RoundedCornerShape(30.dp))
             .background(colorResource(id = R.color.background))
-            .clickable { expanded = !expanded } // Toggle expanded state on click
+            .clickable { expanded = !expanded }
     ) {
         Column(
             modifier = Modifier
@@ -85,17 +94,14 @@ fun TaskItem(task: Task, onDelete: () -> Unit, onEdit: () -> Unit) {
                         .padding(end = 8.dp)
                 )
 
-                // Title with optional truncation
                 Text(
                     text = task.title,
                     fontSize = 18.sp,
-                    maxLines = if (expanded) Int.MAX_VALUE else 1, // Allow multiple lines if expanded
-                    overflow = TextOverflow.Ellipsis, // Show ellipsis when text overflows
-                    modifier = Modifier
-                        .weight(1f) // Expand to fill available space
+                    maxLines = if (expanded) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
 
-                // Date
                 Text(
                     text = LocalDateTime.parse(task.createdAt).toLocalDate().toString(),
                     fontSize = 14.sp,
@@ -104,16 +110,35 @@ fun TaskItem(task: Task, onDelete: () -> Unit, onEdit: () -> Unit) {
                 )
             }
 
-            // Buttons for edit and delete
             if (expanded) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    IconButton(onClick = onEdit) {
+                    IconButton(
+                        onClick = {
+
+                        }
+                    ) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
-                    IconButton(onClick = onDelete) {
+                    IconButton(
+                        onClick = {
+                            // Удаляем задачу из базы данных
+                            val thread = Thread {
+                                val session = database.sessionDao().getOne()
+                                val taskRequest = TaskDeleteRequest(session.token, task.id)
+                                taskRequest.request(taskRequest)
+
+                                database.taskDao().delete(task)
+                            }
+                            thread.start()
+                            thread.join()
+
+                            expanded = !expanded
+                            // Сообщаем родительскому компоненту, что задача удалена
+                            onDelete(task)
+                        }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete")
                     }
                 }

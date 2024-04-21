@@ -15,9 +15,9 @@ class TaskCreateRequest(
     private val token: String,
     private val title: String,
 ) {
-    fun request(taskCreateRequest: TaskCreateRequest): List<Task>? {
+    fun request(taskCreateRequest: TaskCreateRequest): Task? {
         val okHttpClient = OkHttpClient()
-        val tasks: List<Task>
+        val task: Task
 
         val json = JSONObject()
         json.put("title", title)
@@ -44,9 +44,9 @@ class TaskCreateRequest(
 
             // Попытка разбора JSON-ответа и извлечения списка задач
             try {
-                val itemType = object : TypeToken<List<Task>>() {}.type
-                tasks = Gson().fromJson<List<Task>>(responseData, itemType)
-                return tasks
+                val itemType = object : TypeToken<Task>() {}.type
+                task = Gson().fromJson<Task>(responseData, itemType)
+                return task
             } catch (e: Exception) {
                 println("Ошибка при извлечении списка задач: ${e.message}")
                 return null

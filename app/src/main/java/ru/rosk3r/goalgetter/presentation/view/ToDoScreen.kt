@@ -2,22 +2,11 @@ package ru.rosk3r.goalgetter.presentation.view
 
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,7 +17,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import ru.rosk3r.goalgetter.R
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskCreateRequest
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
@@ -36,25 +28,42 @@ import ru.rosk3r.goalgetter.presentation.components.NewTaskDialog
 import ru.rosk3r.goalgetter.presentation.components.TaskList
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
 @Composable
 fun ToDoScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 0
-    var tasks: List<Task>? = null
+    val coroutineScope = rememberCoroutineScope()
+
+    val tasksState = remember { mutableStateOf(emptyList<Task>()) }
     val openDialog = remember { mutableStateOf(false) }
 
-    val thread = Thread {
-        val session = database.sessionDao().getOne()
-        val taskRequest = TaskRequest(session.token)
-        tasks = taskRequest.request(taskRequest)?.reversed()
-        database.taskDao().deleteAll()
+    val onDelete = { taskToDelete: Task ->
+        val updatedTasks = tasksState.value.filter { it.id != taskToDelete.id }
+        tasksState.value = updatedTasks
+    }
 
-        tasks?.forEach { task ->
-            database.taskDao().insert(task)
+    // Load tasks asynchronously
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            val thread = Thread {
+                val session = database.sessionDao().getOne()
+                val taskRequest = TaskRequest(session.token)
+                val tasks = taskRequest.request(taskRequest)?.reversed()
+
+                tasks?.let {
+                    tasksState.value = it
+                    // Update local database
+                    database.taskDao().deleteAll()
+
+                    tasks?.forEach { task ->
+                        database.taskDao().insert(task)
+                    }
+                }
+            }
+            thread.start()
+            thread.join()
         }
     }
-    thread.start()
-    thread.join()
 
     Scaffold(
         topBar = {
@@ -84,10 +93,9 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
             Modifier
                 .background(colorResource(id = R.color.darkBackground))
                 .fillMaxSize()
-                .padding(it) // Use it instead of a fixed padding value
+                .padding(it)
         ) {
-            // List of tasks
-            TaskList(tasks)
+            TaskList(tasksState.value, database, onDelete)
 
             FloatingActionButton(
                 onClick = {
@@ -109,10 +117,28 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
             )
         }
     }
+
     NewTaskDialog(
         openDialog = openDialog,
         onSave = { title ->
-            // Ваша логика сохранения новой задачи
+            coroutineScope.launch {
+                val thread = Thread {
+                    val session = database.sessionDao().getOne()
+                    val taskRequest = TaskCreateRequest(session.token, title)
+                    val task = taskRequest.request(taskRequest)
+
+                    task?.let {
+                        // Create a new list with the new task at the beginning
+                        val updatedTasks = listOf(it) + tasksState.value
+                        // Update the state to trigger recomposition
+                        tasksState.value = updatedTasks
+                        // Save to the local database
+                        database.taskDao().insert(it)
+                    }
+                }
+                thread.start()
+                thread.join()
+            }
         }
     )
 }

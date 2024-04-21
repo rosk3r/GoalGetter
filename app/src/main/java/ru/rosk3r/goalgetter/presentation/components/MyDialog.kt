@@ -2,6 +2,7 @@ package ru.rosk3r.goalgetter.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,11 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -23,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -36,7 +39,7 @@ fun MyAlertDialog() {
 
     if (openDialog.value) {
         AlertDialog(
-            onDismissRequest = { openDialog.value = false},
+            onDismissRequest = { openDialog.value = false },
             title = { Text(text = "Подтверждение действия") },
             text = { Text("Вы действительно хотите удалить выбранный элемент?") },
             confirmButton = {
@@ -59,21 +62,35 @@ fun NewTaskDialog(
         Dialog(
             onDismissRequest = { openDialog.value = false }
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .padding(8.dp)
                     .clip(shape = RoundedCornerShape(30.dp))
                     .background(colorResource(id = R.color.darkBackground))
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp).background(colorResource(id = R.color.darkBackground))
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(colorResource(id = R.color.darkBackground))
                 ) {
-                    Text(text = "Create new task", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Create new task", fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp, color = Color.White
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     TextField(
                         value = title,
                         onValueChange = { title = it },
                         label = { Text("Title") },
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.DarkGray,
+                            focusedLabelColor = Color.DarkGray,
+                            cursorColor = Color.DarkGray,
+                            unfocusedTextColor = Color.Black,
+                            unfocusedContainerColor = colorResource(R.color.background),
+                            focusedTextColor = Color.Black,
+                            focusedContainerColor = colorResource(R.color.accent),
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -85,13 +102,19 @@ fun NewTaskDialog(
                             onClick = {
                                 onSave(title)
                                 openDialog.value = false
-                            }
+                                title = ""
+                            }, colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF97aba1)
+                            )
                         ) {
                             Text("Save")
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Button(
-                            onClick = { openDialog.value = false }
+                            onClick = { openDialog.value = false },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF97aba1)
+                            )
                         ) {
                             Text("Cancel")
                         }
