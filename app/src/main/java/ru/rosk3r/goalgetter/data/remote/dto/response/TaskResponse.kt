@@ -6,5 +6,5 @@ data class TaskResponse(
     val id: Long,
     val title: String,
     val isCompleted: Boolean,
-    val createdAt: LocalDateTime,
+    val createdAt: String,
 )

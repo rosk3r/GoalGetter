@@ -9,6 +9,7 @@ interface TaskRepository {
     fun getTaskStream(id: Long): Flow<Task?>
     suspend fun insertTask(task: Task)
     suspend fun deleteTask(task: Task)
+    suspend fun deleteAll()
     suspend fun updateTask(task: Task)
 
 }

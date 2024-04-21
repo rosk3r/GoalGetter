@@ -64,22 +64,22 @@ fun CalendarScreen(navController: NavController, context: Context, database: Goa
         ) {
             CalendarHeader()
             Spacer(modifier = Modifier.height(16.dp))
-            CalendarBody(
-                tasks = listOf(
-                    Task(
-                        id = 1,
-                        title = "Task 1",
-                        isCompleted = false,
-                        createdAt = LocalDateTime.now()
-                    ),
-                    Task(
-                        id = 2,
-                        title = "Task 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncation",
-                        isCompleted = true, createdAt = LocalDateTime.now()
-                    ),
-                    Task(id = 1, title = "Task 3", isCompleted = false, createdAt = LocalDateTime.now())
-                )
-            )
+//            CalendarBody(
+//                tasks = listOf(
+//                    Task(
+//                        id = 1,
+//                        title = "Task 1",
+//                        isCompleted = false,
+//                        createdAt = LocalDateTime.now()
+//                    ),
+//                    Task(
+//                        id = 2,
+//                        title = "Task 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncation",
+//                        isCompleted = true, createdAt = LocalDateTime.now()
+//                    ),
+//                    Task(id = 1, title = "Task 3", isCompleted = false, createdAt = LocalDateTime.now())
+//                )
+//            )
         }
     }
 }

@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.domain.model.Task
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun TaskList(tasks: List<Task>?) {
@@ -95,7 +97,7 @@ fun TaskItem(task: Task, onDelete: () -> Unit, onEdit: () -> Unit) {
 
                 // Date
                 Text(
-                    text = task.createdAt.toLocalDate().toString(),
+                    text = LocalDateTime.parse(task.createdAt).toLocalDate().toString(),
                     fontSize = 14.sp,
                     color = Color.Black,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp)

@@ -14,5 +14,5 @@ data class Task(
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean,
     @ColumnInfo(name = "created_at")
-    val createdAt: LocalDateTime,
+    val createdAt: String,
 )

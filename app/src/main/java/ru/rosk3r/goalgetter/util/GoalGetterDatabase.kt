@@ -13,7 +13,7 @@ import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.domain.model.User
 
 @Database(entities = [Session::class, Task::class, User::class], version = 1)
-@TypeConverters(Converters::class)
+//@TypeConverters(Converters::class)
 abstract class GoalGetterDatabase : RoomDatabase() {
 
     abstract fun sessionDao(): SessionDao

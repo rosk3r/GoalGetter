@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ru.rosk3r.goalgetter.R
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
 import ru.rosk3r.goalgetter.presentation.components.NewTaskDialog
@@ -42,17 +43,18 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
     var tasks: List<Task>? = null
     val openDialog = remember { mutableStateOf(false) }
 
-//    val thread = Thread {
-//        val session = database.sessionDao().getOne()
-//        val taskRequest = TaskRequest(session.token)
-//        tasks = taskRequest.request(taskRequest)
-//
-//        tasks?.forEach { task ->
-//            database.taskDao().insert(task)
-//        }
-//    }
-//    thread.start()
-//    thread.join()
+    val thread = Thread {
+        val session = database.sessionDao().getOne()
+        val taskRequest = TaskRequest(session.token)
+        tasks = taskRequest.request(taskRequest)
+        database.taskDao().deleteAll()
+
+        tasks?.forEach { task ->
+            database.taskDao().insert(task)
+        }
+    }
+    thread.start()
+    thread.join()
 
     Scaffold(
         topBar = {
