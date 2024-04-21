@@ -19,4 +19,6 @@ class OfflineTaskRepository(private val taskDao: TaskDao): TaskRepository {
 
     override suspend fun updateTask(task: Task) = taskDao.update(task)
 
+    override suspend fun updateTitleById(id: Long, newTitle: String) = taskDao.updateTitleById(id, newTitle)
+
 }

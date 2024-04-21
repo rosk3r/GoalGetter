@@ -124,3 +124,77 @@ fun NewTaskDialog(
         }
     }
 }
+
+@Composable
+fun EditTaskDialog(
+    openDialog: MutableState<Boolean>,
+    onEdit: (String) -> Unit
+) {
+    var title by remember { mutableStateOf("") }
+
+    if (openDialog.value) {
+        Dialog(
+            onDismissRequest = { openDialog.value = false }
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clip(shape = RoundedCornerShape(30.dp))
+                    .background(colorResource(id = R.color.darkBackground))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(colorResource(id = R.color.darkBackground))
+                ) {
+                    Text(
+                        text = "Enter new title", fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp, color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Title") },
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.DarkGray,
+                            focusedLabelColor = Color.DarkGray,
+                            cursorColor = Color.DarkGray,
+                            unfocusedTextColor = Color.Black,
+                            unfocusedContainerColor = colorResource(R.color.background),
+                            focusedTextColor = Color.Black,
+                            focusedContainerColor = colorResource(R.color.accent),
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            onClick = {
+                                onEdit(title)
+                                openDialog.value = false
+                                title = ""
+                            }, colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF97aba1)
+                            )
+                        ) {
+                            Text("Save")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = { openDialog.value = false },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF97aba1)
+                            )
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

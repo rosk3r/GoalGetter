@@ -24,6 +24,12 @@ interface TaskDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(task: Task)
 
+    @Query("UPDATE t_tasks SET title = :newTitle WHERE id = :id")
+    fun updateTitleById(id: Long, newTitle: String)
+
+    @Query("UPDATE t_tasks SET is_completed = :isCompleted WHERE id = :id")
+    fun updateStatusById(id: Long, isCompleted: Boolean)
+
     @Delete
     fun delete(task: Task)
 

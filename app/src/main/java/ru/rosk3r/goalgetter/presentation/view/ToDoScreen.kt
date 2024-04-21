@@ -37,10 +37,21 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
     val tasksState = remember { mutableStateOf(emptyList<Task>()) }
     val openDialog = remember { mutableStateOf(false) }
 
+    val onEdit = { editedTask: Task ->
+        val updatedTasks = tasksState.value.map { task ->
+            if (task.id == editedTask.id) {
+                editedTask
+            } else {
+                task
+            }
+        }
+        tasksState.value = updatedTasks
+    }
     val onDelete = { taskToDelete: Task ->
         val updatedTasks = tasksState.value.filter { it.id != taskToDelete.id }
         tasksState.value = updatedTasks
     }
+
 
     // Load tasks asynchronously
     LaunchedEffect(Unit) {
@@ -95,7 +106,7 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 .fillMaxSize()
                 .padding(it)
         ) {
-            TaskList(tasksState.value, database, onDelete)
+            TaskList(tasksState.value, database, onDelete, onEdit)
 
             FloatingActionButton(
                 onClick = {

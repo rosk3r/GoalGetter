@@ -32,8 +32,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import ru.rosk3r.goalgetter.R
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskCreateRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskEditRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 import java.time.LocalDateTime
@@ -42,7 +45,8 @@ import java.time.LocalDateTime
 fun TaskList(
     tasks: List<Task>?,
     database: GoalGetterDatabase,
-    onDelete: (Task) -> Unit
+    onDelete: (Task) -> Unit,
+    onEdit: (Task) -> Unit
 ) {
     Column(
         modifier = Modifier.verticalScroll(ScrollState(0))
@@ -51,7 +55,8 @@ fun TaskList(
             TaskItem(
                 task = task,
                 database = database,
-                onDelete = onDelete // Передаем обратный вызов на удаление
+                onDelete = onDelete,
+                onEdit = onEdit
             )
         }
     }
@@ -61,9 +66,11 @@ fun TaskList(
 fun TaskItem(
     task: Task,
     database: GoalGetterDatabase,
-    onDelete: (Task) -> Unit
+    onDelete: (Task) -> Unit,
+    onEdit: (Task) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val openDialog = remember { mutableStateOf(false) }
 
     Box(
         Modifier
@@ -117,14 +124,13 @@ fun TaskItem(
                 ) {
                     IconButton(
                         onClick = {
-
+                            openDialog.value = true
                         }
                     ) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
                     IconButton(
                         onClick = {
-                            // Удаляем задачу из базы данных
                             val thread = Thread {
                                 val session = database.sessionDao().getOne()
                                 val taskRequest = TaskDeleteRequest(session.token, task.id)
@@ -141,6 +147,29 @@ fun TaskItem(
                         }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete")
                     }
+                }
+                if (openDialog.value) {
+                    EditTaskDialog(
+                        openDialog = openDialog, // Передаем состояние диалога
+                        onEdit = { title ->
+                            // Обрабатываем редактирование
+                            val thread = Thread {
+                                val session = database.sessionDao().getOne()
+                                val taskRequest = TaskEditRequest(session.token, task.id, title)
+                                taskRequest.request(taskRequest)
+
+                                database.taskDao().updateTitleById(task.id, title)
+
+                                // Сообщаем родительскому компоненту об изменении
+                                onEdit(task.copy(title = title))
+                            }
+                            thread.start()
+                            thread.join()
+
+                            openDialog.value = false // Закрываем диалог после редактирования
+                            expanded = !expanded
+                        }
+                    )
                 }
             }
         }
