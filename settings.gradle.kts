@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "compose-test"
+rootProject.name = "goalgetter"
 include(":app")
  

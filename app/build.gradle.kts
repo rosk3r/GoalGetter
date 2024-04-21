@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "ru.rosk3r.composetest"
+    namespace = "ru.rosk3r.goalgetter"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "ru.rosk3r.composetest"
+        applicationId = "ru.rosk3r.goalgetter"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
