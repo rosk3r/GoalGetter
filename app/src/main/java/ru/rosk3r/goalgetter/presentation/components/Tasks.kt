@@ -39,6 +39,7 @@ import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskEditRequest
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskStatusChangeRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 import java.time.LocalDateTime
@@ -75,6 +76,7 @@ fun TaskItem(
     val openEditDialog = remember { mutableStateOf(false) }
     val openDeleteDialog = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    var isCompleted by remember { mutableStateOf(task.isCompleted) }
 
     Box(
         Modifier
@@ -95,8 +97,21 @@ fun TaskItem(
                     .fillMaxWidth()
             ) {
                 Checkbox(
-                    checked = task.isCompleted,
-                    onCheckedChange = {},
+                    checked = isCompleted,
+                    onCheckedChange = {
+                        isCompleted = !isCompleted
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                val session = database.sessionDao().getOne()
+                                val taskRequest = TaskStatusChangeRequest(session.token, task.id)
+                                val newTask = taskRequest.request(taskRequest)
+
+                                if (newTask != null) {
+                                    database.taskDao().updateStatusById(newTask.id, newTask.isCompleted)
+                                }
+                            }
+                        }
+                    },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.DarkGray,
                         checkmarkColor = colorResource(id = R.color.darkBackground)

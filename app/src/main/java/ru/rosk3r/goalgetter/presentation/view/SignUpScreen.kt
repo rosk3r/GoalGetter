@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
@@ -186,6 +187,7 @@ fun SignUpScreen(navController: NavController, context: Context, database: GoalG
                             }
 
                             myToast(context, "user ${username}, created")
+                            delay(300)
                             navController.navigate("screen_1")
                         }
                     }
