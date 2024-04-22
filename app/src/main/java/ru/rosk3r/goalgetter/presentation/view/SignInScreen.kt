@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -33,6 +34,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.data.remote.dto.request.SignInRequest
 import ru.rosk3r.goalgetter.domain.model.Session
@@ -45,7 +49,7 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val coroutineScope = rememberCoroutineScope()
     var session: Session? = null
 
     Box(
@@ -141,18 +145,17 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
                     }
 
                     if (username.isNotEmpty() and password.isNotEmpty()) {
-                        val thread = Thread {
-                            val signInRequest = SignInRequest(username, password)
-                            session = signInRequest.request()
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                val signInRequest = SignInRequest(username, password)
+                                session = signInRequest.request()
 
-                            session?.let { database.sessionDao().insert(it) }
+                                session?.let { database.sessionDao().insert(it) }
+                                navController.navigate("screen_1")
+                            }
+                            myToast(context, "welcome back")
                             navController.navigate("screen_1")
                         }
-                        thread.start()
-                        thread.join()
-
-                        myToast(context, "welcome back")
-                        navController.navigate("screen_1")
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -173,6 +176,5 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
                     }
                 }
         )
-//        MyNavigationBar(tabs = tabs, onTabSelected = onTabSelected, selectedTab = selectedTab)
     }
 }

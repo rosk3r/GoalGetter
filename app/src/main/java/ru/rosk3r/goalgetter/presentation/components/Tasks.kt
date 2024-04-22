@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskEditRequest
@@ -70,6 +74,7 @@ fun TaskItem(
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
     val openDeleteDialog = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(
         Modifier
@@ -139,19 +144,18 @@ fun TaskItem(
                     EditTaskDialog(
                         openDialog = openEditDialog, // Передаем состояние диалога
                         onEdit = { title ->
-                            // Обрабатываем редактирование
-                            val thread = Thread {
-                                val session = database.sessionDao().getOne()
-                                val taskRequest = TaskEditRequest(session.token, task.id, title)
-                                taskRequest.request(taskRequest)
+                            coroutineScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    val session = database.sessionDao().getOne()
+                                    val taskRequest = TaskEditRequest(session.token, task.id, title)
+                                    taskRequest.request(taskRequest)
 
-                                database.taskDao().updateTitleById(task.id, title)
+                                    database.taskDao().updateTitleById(task.id, title)
 
-                                // Сообщаем родительскому компоненту об изменении
-                                onEdit(task.copy(title = title))
+                                    // Сообщаем родительскому компоненту об изменении
+                                    onEdit(task.copy(title = title))
+                                }
                             }
-                            thread.start()
-                            thread.join()
 
                             openEditDialog.value = false // Закрываем диалог после редактирования
                             expanded = !expanded
@@ -166,15 +170,15 @@ fun TaskItem(
                     TaskDeleteDialog(
                         openDialog = openDeleteDialog,
                         onDelete = {
-                            val thread = Thread {
-                                val session = database.sessionDao().getOne()
-                                val taskRequest = TaskDeleteRequest(session.token, task.id)
-                                taskRequest.request(taskRequest)
+                            coroutineScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    val session = database.sessionDao().getOne()
+                                    val taskRequest = TaskDeleteRequest(session.token, task.id)
+                                    taskRequest.request(taskRequest)
 
-                                database.taskDao().delete(task)
+                                    database.taskDao().delete(task)
+                                }
                             }
-                            thread.start()
-                            thread.join()
 
                             openEditDialog.value = false
                             expanded = !expanded

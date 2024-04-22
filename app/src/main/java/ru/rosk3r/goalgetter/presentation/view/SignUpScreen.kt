@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -33,6 +34,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.data.remote.dto.request.SignUpRequest
 import ru.rosk3r.goalgetter.domain.model.Session
@@ -47,7 +51,7 @@ fun SignUpScreen(navController: NavController, context: Context, database: GoalG
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val coroutineScope = rememberCoroutineScope()
     var session: Session?
 
     Box(
@@ -166,23 +170,24 @@ fun SignUpScreen(navController: NavController, context: Context, database: GoalG
                         myToast(context, "some field is empty")
                     }
 
-                    if(!email.isValidEmail()) {
+                    if (!email.isValidEmail()) {
                         myToast(context, "email is incorrect")
                     }
 
-                    if (username.isNotEmpty() and  email.isNotEmpty() and
-                        email.isValidEmail() and password.isNotEmpty()) {
-                        val thread = Thread {
-                            val signUpRequest = SignUpRequest(username, email, password)
-                            session = signUpRequest.request()
+                    if (username.isNotEmpty() and email.isNotEmpty() and
+                        email.isValidEmail() and password.isNotEmpty()
+                    ) {
+                        coroutineScope.launch {
+                            withContext(Dispatchers.IO) {
+                                val signUpRequest = SignUpRequest(username, email, password)
+                                session = signUpRequest.request()
 
-                            session?.let { database.sessionDao().insert(it) }
+                                session?.let { database.sessionDao().insert(it) }
+                            }
+
+                            myToast(context, "user ${username}, created")
+                            navController.navigate("screen_1")
                         }
-                        thread.start()
-                        thread.join()
-
-                        myToast(context, "user ${username}, created")
-                        navController.navigate("screen_1")
                     }
                 },
                 colors = ButtonDefaults.buttonColors(

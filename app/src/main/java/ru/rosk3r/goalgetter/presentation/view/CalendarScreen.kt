@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -20,7 +24,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.CalendarBody
 import ru.rosk3r.goalgetter.presentation.components.CalendarHeader
@@ -31,6 +41,18 @@ import java.time.LocalDateTime
 @Composable
 fun CalendarScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 2
+    val coroutineScope = rememberCoroutineScope()
+    val tasksState = remember { mutableStateOf(emptyList<Task>()) }
+
+    // Load tasks asynchronously
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            val tasks = withContext(Dispatchers.IO) {
+                database.taskDao().getAll().first()
+            }
+            tasksState.value = tasks
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -64,22 +86,9 @@ fun CalendarScreen(navController: NavController, context: Context, database: Goa
         ) {
             CalendarHeader()
             Spacer(modifier = Modifier.height(16.dp))
-//            CalendarBody(
-//                tasks = listOf(
-//                    Task(
-//                        id = 1,
-//                        title = "Task 1",
-//                        isCompleted = false,
-//                        createdAt = LocalDateTime.now()
-//                    ),
-//                    Task(
-//                        id = 2,
-//                        title = "Task 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncationTask 2 with a long title to demonstrate truncation",
-//                        isCompleted = true, createdAt = LocalDateTime.now()
-//                    ),
-//                    Task(id = 1, title = "Task 3", isCompleted = false, createdAt = LocalDateTime.now())
-//                )
-//            )
+            CalendarBody(
+                tasks = tasksState.value.toList()
+            )
         }
     }
 }
