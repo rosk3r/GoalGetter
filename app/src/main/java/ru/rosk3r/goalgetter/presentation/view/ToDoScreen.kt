@@ -65,7 +65,23 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         val updatedTasks = tasksState.value.filter { it.id != taskToDelete.id }
         tasksState.value = updatedTasks
     }
+    val onStatus: (Task) -> Unit = { updatedTask ->
+        // Например, обновление списка задач
+        tasksState.value = tasksState.value.map { task ->
+            if (task.id == updatedTask.id) {
+                updatedTask
+            } else {
+                task
+            }
+        }
 
+        // Дополнительно: сохранение изменения в базе данных
+        coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+                database.taskDao().updateStatusById(updatedTask.id, updatedTask.isCompleted)
+            }
+        }
+    }
 
     // Load tasks asynchronously
     LaunchedEffect(Unit) {
@@ -119,7 +135,7 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 .fillMaxSize()
                 .padding(it)
         ) {
-            TaskList(tasksState.value, database, onDelete, onEdit)
+            TaskList(tasksState.value, database, onDelete, onEdit, onStatus)
 
             FloatingActionButton(
                 onClick = {

@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +50,8 @@ fun TaskList(
     tasks: List<Task>?,
     database: GoalGetterDatabase,
     onDelete: (Task) -> Unit,
-    onEdit: (Task) -> Unit
+    onEdit: (Task) -> Unit,
+    onStatus: (Task) -> Unit
 ) {
     Column(
         modifier = Modifier.verticalScroll(ScrollState(0))
@@ -59,7 +61,8 @@ fun TaskList(
                 task = task,
                 database = database,
                 onDelete = onDelete,
-                onEdit = onEdit
+                onEdit = onEdit,
+                onStatus = onStatus
             )
         }
     }
@@ -70,13 +73,19 @@ fun TaskItem(
     task: Task,
     database: GoalGetterDatabase,
     onDelete: (Task) -> Unit,
-    onEdit: (Task) -> Unit
+    onEdit: (Task) -> Unit,
+    onStatus: (Task) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
     val openDeleteDialog = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var isCompleted by remember { mutableStateOf(task.isCompleted) }
+    // Перезапускаем состояние при изменении задачи
+    LaunchedEffect(task) {
+        isCompleted = task.isCompleted
+        expanded = false
+    }
 
     Box(
         Modifier
@@ -98,26 +107,16 @@ fun TaskItem(
             ) {
                 Checkbox(
                     checked = isCompleted,
-                    onCheckedChange = {
-                        isCompleted = !isCompleted
-                        coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
-                                val session = database.sessionDao().getOne()
-                                val taskRequest = TaskStatusChangeRequest(session.token, task.id)
-                                val newTask = taskRequest.request(taskRequest)
-
-                                if (newTask != null) {
-                                    database.taskDao().updateStatusById(newTask.id, newTask.isCompleted)
-                                }
-                            }
-                        }
+                    onCheckedChange = { checked ->
+                        // Обновляем состояние на основе значения чекбокса
+                        isCompleted = checked
+                        // Отправляем обновление родителю
+                        onStatus(task.copy(isCompleted = checked))
                     },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.DarkGray,
                         checkmarkColor = colorResource(id = R.color.darkBackground)
-                    ),
-                    modifier = Modifier
-                        .padding(end = 8.dp)
+                    )
                 )
 
                 Text(
@@ -176,7 +175,6 @@ fun TaskItem(
                             expanded = !expanded
                         },
                         onCancel = {
-                            expanded = !expanded
                         }
                     )
                 }
@@ -200,7 +198,6 @@ fun TaskItem(
                             onDelete(task)
                         },
                         onCancel = {
-                            expanded = !expanded
                         }
                     )
                 }
