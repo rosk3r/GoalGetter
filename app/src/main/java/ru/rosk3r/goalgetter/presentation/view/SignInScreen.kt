@@ -43,15 +43,16 @@ import ru.rosk3r.goalgetter.data.remote.dto.request.SignInRequest
 import ru.rosk3r.goalgetter.domain.model.Session
 import ru.rosk3r.goalgetter.presentation.components.myToast
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
+import ru.rosk3r.goalgetter.util.isValidEmail
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignInScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
     val coroutineScope = rememberCoroutineScope()
-    var session: Session? = null
+    var session: Session?
 
     Box(
         modifier = Modifier
@@ -85,9 +86,9 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
             )
 
             TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next
@@ -141,14 +142,18 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
 
             Button(
                 onClick = {
-                    if (username.isEmpty() or password.isEmpty()) {
+                    if (email.isEmpty() or password.isEmpty()) {
                         myToast(context, "some field is empty")
                     }
 
-                    if (username.isNotEmpty() and password.isNotEmpty()) {
+                    if (!email.isValidEmail()) {
+                        myToast(context, "email is incorrect")
+                    }
+
+                    if (email.isNotEmpty() and password.isNotEmpty() and email.isValidEmail() ) {
                         coroutineScope.launch {
                             withContext(Dispatchers.IO) {
-                                val signInRequest = SignInRequest(username, password)
+                                val signInRequest = SignInRequest(email, password)
                                 session = signInRequest.request()
 
                                 session?.let { database.sessionDao().insert(it) }

@@ -10,20 +10,20 @@ import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import org.json.JSONObject
-import ru.rosk3r.goalgetter.domain.model.Session
 import ru.rosk3r.goalgetter.data.remote.dto.response.SessionResponse
+import ru.rosk3r.goalgetter.domain.model.Session
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
 
 data class SignInRequest(
-    private val login: String,
+    private val email: String,
     private val password: String,
 ) {
     fun request(): Session? {
         val okHttpClient = OkHttpClient()
 
         val json = JSONObject()
-        json.put("email", login)
+        json.put("email", email)
         json.put("password", password)
 
         // Создаем тело запроса из JSON-объекта
