@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,14 +23,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
+import ru.rosk3r.goalgetter.data.remote.dto.request.UsersStatsRequest
+import ru.rosk3r.goalgetter.data.remote.dto.response.UserStatsResponse
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
+import ru.rosk3r.goalgetter.presentation.components.UserStatsList
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
 @Composable
 fun GoalScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 3
+    val coroutineScope = rememberCoroutineScope()
+
+    val userStatsState = remember { mutableStateOf<List<UserStatsResponse>?>(null) }
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            val userStatsResponse: List<UserStatsResponse>? = withContext(Dispatchers.IO) {
+                val usersStatsRequest = UsersStatsRequest()
+                usersStatsRequest.request(usersStatsRequest)
+            }
+            userStatsState.value = userStatsResponse
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -56,8 +79,11 @@ fun GoalScreen(navController: NavController, context: Context, database: GoalGet
             Modifier
                 .background(colorResource(id = R.color.darkBackground))
                 .fillMaxSize()
+                .padding(it)
         ) {
-            Text("Goal Screen", fontSize = 28.sp, modifier = Modifier.padding(it))
+            userStatsState.value?.let { userStatsResponse ->
+                UserStatsList(userStatsResponse)
+            }
         }
     }
 }

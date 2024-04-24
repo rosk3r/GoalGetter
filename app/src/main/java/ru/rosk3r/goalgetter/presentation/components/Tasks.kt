@@ -56,7 +56,7 @@ fun TaskList(
     context: Context
 ) {
     Column(
-        modifier = Modifier.verticalScroll(ScrollState(0))
+        modifier = Modifier.verticalScroll(ScrollState(0)).padding(bottom = 78.dp)
     ) {
         tasks?.forEach { task ->
             TaskItem(
@@ -80,7 +80,7 @@ fun ArchivedTaskList(
     context: Context
 ) {
     Column(
-        modifier = Modifier.verticalScroll(ScrollState(0))
+        modifier = Modifier.verticalScroll(ScrollState(0)).padding(bottom = 78.dp)
     ) {
         tasks?.forEach { task ->
             ArchivedTaskItem(

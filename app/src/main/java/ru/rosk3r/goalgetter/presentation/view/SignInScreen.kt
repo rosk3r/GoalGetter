@@ -152,8 +152,8 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
                                 session = signInRequest.request()
 
                                 session?.let { database.sessionDao().insert(it) }
-                                navController.navigate("screen_1")
                             }
+
                             myToast(context, "welcome back")
                             delay(300)
                             navController.navigate("screen_1")
