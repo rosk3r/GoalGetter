@@ -42,7 +42,6 @@ import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskDeleteRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskEditRequest
-import ru.rosk3r.goalgetter.data.remote.dto.request.TaskStatusChangeRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 import java.time.LocalDateTime

@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
@@ -33,7 +32,6 @@ import ru.rosk3r.goalgetter.data.remote.dto.request.TaskStatusChangeRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.ArchivedTaskList
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
-import ru.rosk3r.goalgetter.presentation.components.TaskList
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 
 @OptIn(ExperimentalComposeUiApi::class)
