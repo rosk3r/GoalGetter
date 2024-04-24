@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskCreateRequest
 import ru.rosk3r.goalgetter.data.remote.dto.request.TaskRequest
+import ru.rosk3r.goalgetter.data.remote.dto.request.TaskStatusChangeRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
 import ru.rosk3r.goalgetter.presentation.components.NewTaskDialog
@@ -79,6 +80,13 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         coroutineScope.launch {
             withContext(Dispatchers.IO) {
                 database.taskDao().updateStatusById(updatedTask.id, updatedTask.isCompleted)
+                withContext(Dispatchers.IO) {
+                    withContext(Dispatchers.IO) {
+                        val session = database.sessionDao().getOne()
+                        val taskRequest = TaskStatusChangeRequest(session.token, updatedTask.id)
+                        taskRequest.request(taskRequest)
+                    }
+                }
             }
         }
     }
@@ -135,7 +143,7 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 .fillMaxSize()
                 .padding(it)
         ) {
-            TaskList(tasksState.value, database, onDelete, onEdit, onStatus)
+            TaskList(tasksState.value.filter { !it.isCompleted }, database, onDelete, onEdit, onStatus, context)
 
             FloatingActionButton(
                 onClick = {

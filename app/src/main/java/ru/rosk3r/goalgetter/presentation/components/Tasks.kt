@@ -1,5 +1,6 @@
 package ru.rosk3r.goalgetter.presentation.components
 
+import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
@@ -51,7 +53,8 @@ fun TaskList(
     database: GoalGetterDatabase,
     onDelete: (Task) -> Unit,
     onEdit: (Task) -> Unit,
-    onStatus: (Task) -> Unit
+    onStatus: (Task) -> Unit,
+    context: Context
 ) {
     Column(
         modifier = Modifier.verticalScroll(ScrollState(0))
@@ -62,7 +65,31 @@ fun TaskList(
                 database = database,
                 onDelete = onDelete,
                 onEdit = onEdit,
-                onStatus = onStatus
+                onStatus = onStatus,
+                context = context
+            )
+        }
+    }
+}
+
+@Composable
+fun ArchivedTaskList(
+    tasks: List<Task>?,
+    database: GoalGetterDatabase,
+    onDelete: (Task) -> Unit,
+    onStatus: (Task) -> Unit,
+    context: Context
+) {
+    Column(
+        modifier = Modifier.verticalScroll(ScrollState(0))
+    ) {
+        tasks?.forEach { task ->
+            ArchivedTaskItem(
+                task = task,
+                database = database,
+                onDelete = onDelete,
+                onStatus = onStatus,
+                context = context
             )
         }
     }
@@ -74,7 +101,8 @@ fun TaskItem(
     database: GoalGetterDatabase,
     onDelete: (Task) -> Unit,
     onEdit: (Task) -> Unit,
-    onStatus: (Task) -> Unit
+    onStatus: (Task) -> Unit,
+    context: Context
 ) {
     var expanded by remember { mutableStateOf(false) }
     val openEditDialog = remember { mutableStateOf(false) }
@@ -110,8 +138,13 @@ fun TaskItem(
                     onCheckedChange = { checked ->
                         // Обновляем состояние на основе значения чекбокса
                         isCompleted = checked
-                        // Отправляем обновление родителю
-                        onStatus(task.copy(isCompleted = checked))
+                        coroutineScope.launch {
+                            delay(600)
+                            onStatus(task.copy(isCompleted = checked))
+                        }
+                        if (checked) {
+                            myToast(context, "task has been archived")
+                        }
                     },
                     colors = CheckboxDefaults.colors(
                         checkedColor = Color.DarkGray,
@@ -206,3 +239,116 @@ fun TaskItem(
     }
 }
 
+@Composable
+fun ArchivedTaskItem(
+    task: Task,
+    database: GoalGetterDatabase,
+    onDelete: (Task) -> Unit,
+    onStatus: (Task) -> Unit,
+    context: Context
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val openEditDialog = remember { mutableStateOf(false) }
+    val openDeleteDialog = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    var isCompleted by remember { mutableStateOf(task.isCompleted) }
+    // Перезапускаем состояние при изменении задачи
+    LaunchedEffect(task) {
+        isCompleted = task.isCompleted
+        expanded = false
+    }
+
+    Box(
+        Modifier
+            .padding(bottom = 8.dp)
+            .padding(start = 16.dp, end = 16.dp)
+            .clip(shape = RoundedCornerShape(30.dp))
+            .background(colorResource(id = R.color.background))
+            .clickable { expanded = !expanded }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Checkbox(
+                    checked = isCompleted,
+                    onCheckedChange = { checked ->
+                        // Обновляем состояние на основе значения чекбокса
+                        isCompleted = checked
+                        coroutineScope.launch {
+                            delay(600)
+                            onStatus(task.copy(isCompleted = checked))
+                        }
+
+                        // Отправляем обновление родителю
+                        if (!checked) {
+                            myToast(context, "task has been unarchived")
+                        }
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.DarkGray,
+                        checkmarkColor = colorResource(id = R.color.darkBackground)
+                    )
+                )
+
+                Text(
+                    text = task.title,
+                    fontSize = 18.sp,
+                    maxLines = if (expanded) Int.MAX_VALUE else 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Text(
+                    text = LocalDateTime.parse(task.createdAt).toLocalDate().toString(),
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+            }
+
+            if (expanded) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = {
+                            openDeleteDialog.value = true
+                        }) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete")
+                    }
+                }
+
+                if (openDeleteDialog.value) {
+                    TaskDeleteDialog(
+                        openDialog = openDeleteDialog,
+                        onDelete = {
+                            coroutineScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    val session = database.sessionDao().getOne()
+                                    val taskRequest = TaskDeleteRequest(session.token, task.id)
+                                    taskRequest.request(taskRequest)
+
+                                    database.taskDao().delete(task)
+                                }
+                            }
+
+                            openEditDialog.value = false
+                            expanded = !expanded
+                            onDelete(task)
+                        },
+                        onCancel = {
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
