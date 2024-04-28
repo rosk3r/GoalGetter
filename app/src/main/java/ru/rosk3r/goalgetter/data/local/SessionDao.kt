@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import ru.rosk3r.goalgetter.domain.model.Session
@@ -32,5 +33,9 @@ interface SessionDao {
 
     @Delete
     suspend fun delete(session: Session)
+
+    @Transaction
+    @Query("DELETE FROM t_sessions")
+    fun deleteAll()
 
 }
