@@ -155,6 +155,7 @@ fun SettingsScreen(navController: NavController, context: Context, database: Goa
                                             }
 
                                             myToast(context, "username has been changed")
+                                            changeLoginExpanded = !changeLoginExpanded
                                         }
                                     } else {
                                         myToast(context, "username field is empty")
@@ -228,6 +229,7 @@ fun SettingsScreen(navController: NavController, context: Context, database: Goa
                                             }
 
                                             myToast(context, "password has been changed")
+                                            changePasswordExpanded = !changeLoginExpanded
                                         }
                                     } else {
                                         myToast(context, "password field is empty")
