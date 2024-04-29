@@ -1,7 +1,6 @@
 package ru.rosk3r.goalgetter.presentation.view
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -255,7 +254,8 @@ fun SettingsScreen(navController: NavController, context: Context, database: Goa
                         onClick = {
                             coroutineScope.launch {
                                 withContext(Dispatchers.IO) {
-                                    val signOutRequest = SignOutRequest(database.sessionDao().getOne().token)
+                                    val signOutRequest =
+                                        SignOutRequest(database.sessionDao().getOne().token)
                                     database.sessionDao().deleteAll()
                                     signOutRequest.request(signOutRequest)
                                 }
