@@ -29,13 +29,13 @@ class UsersStatsRequest(
             val responseData = response.body?.string()
             println("Response body: $responseData")
 
-            try {
+            return try {
                 val itemType = object : TypeToken<List<UserStatsResponse>>() {}.type
                 users = Gson().fromJson<List<UserStatsResponse>>(responseData, itemType)
-                return users
+                users
             } catch (e: Exception) {
                 println("Response was not successful: ${e.message}")
-                return null
+                null
             }
         } catch (e: IOException) {
             e.printStackTrace()
