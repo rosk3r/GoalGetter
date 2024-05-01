@@ -48,12 +48,6 @@ fun CalendarHeader() {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(start = 16.dp)
         )
-        IconButton(
-            onClick = { /* Handle calendar navigation */ },
-            modifier = Modifier.padding(end = 16.dp)
-        ) {
-//            Icon(Icons.Filled.CalendarToday, contentDescription = "Calendar")
-        }
     }
 }
 

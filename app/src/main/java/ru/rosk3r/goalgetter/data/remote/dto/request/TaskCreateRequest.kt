@@ -42,13 +42,12 @@ class TaskCreateRequest(
             val responseData = response.body?.string()
             println("Response body: $responseData")
 
-            // Попытка разбора JSON-ответа и извлечения списка задач
             try {
                 val itemType = object : TypeToken<Task>() {}.type
                 task = Gson().fromJson<Task>(responseData, itemType)
                 return task
             } catch (e: Exception) {
-                println("Ошибка при извлечении списка задач: ${e.message}")
+                println("Response was not successful: ${e.message}")
                 return null
             }
         } catch (e: IOException) {

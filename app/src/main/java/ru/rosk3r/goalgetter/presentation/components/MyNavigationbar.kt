@@ -49,7 +49,7 @@ fun MyNavigationBar(
                     .align(Alignment.Bottom)
                     .padding(top = 2.dp)
                     .padding(bottom = 4.dp)
-                    .height(54.dp) // Increase height to accommodate icon and text
+                    .height(54.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
@@ -80,7 +80,7 @@ fun MyNavigationBar(
                                 Text(
                                     text = title,
                                     fontSize = 10.sp,
-                                    modifier = Modifier.padding(top = 3.dp) // Add some padding between icon and text
+                                    modifier = Modifier.padding(top = 3.dp)
                                 )
                             }
                         },

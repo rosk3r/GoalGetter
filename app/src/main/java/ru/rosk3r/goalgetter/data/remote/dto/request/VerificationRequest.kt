@@ -23,7 +23,6 @@ data class VerificationRequest(
         val json = JSONObject()
         json.put("token", verificationRequest.token)
 
-        // Создаем тело запроса из JSON-объекта
         val requestBody: RequestBody = json.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
@@ -47,7 +46,6 @@ data class VerificationRequest(
                 val responseData = response.body?.string()
                 println("Response body: $responseData")
 
-                // Попытка разбора JSON-ответа и извлечения токена
                 try {
                     val response = Gson().fromJson(responseData, SessionResponse::class.java)
                     sessionResponse = SessionResponse(response.id, response.userId, response.token, response.expiredDate)

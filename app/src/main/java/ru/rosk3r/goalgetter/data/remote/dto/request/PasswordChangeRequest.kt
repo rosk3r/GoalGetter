@@ -22,7 +22,6 @@ data class PasswordChangeRequest(
         val json = JSONObject()
         json.put("password", password)
 
-        // Создаем тело запроса из JSON-объекта
         val requestBody: RequestBody = json.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 

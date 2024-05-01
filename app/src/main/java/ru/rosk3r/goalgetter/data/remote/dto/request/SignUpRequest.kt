@@ -29,7 +29,6 @@ class SignUpRequest(
         json.put("password", password)
         json.put("code", "123")
 
-        // Создаем тело запроса из JSON-объекта
         val requestBody: RequestBody = json.toString()
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
@@ -58,12 +57,11 @@ class SignUpRequest(
                 val responseData = response.body?.string()
                 println("Response body: $responseData")
 
-                // Попытка разбора JSON-ответа и извлечения токена
                 try {
                     val sessionResponse = Gson().fromJson(responseData, SessionResponse::class.java)
                     session = Session(sessionResponse.id, sessionResponse.token)
                 } catch (e: Exception) {
-                    println("Ошибка при извлечении токена: ${e.message}")
+                    println("Response was not successful: ${e.message}")
                 } finally {
                     latch.countDown()
                 }

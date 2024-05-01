@@ -42,7 +42,6 @@ fun CalendarScreen(navController: NavController, context: Context, database: Goa
     val coroutineScope = rememberCoroutineScope()
     val tasksState = remember { mutableStateOf(emptyList<Task>()) }
 
-    // Load tasks asynchronously
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
@@ -84,7 +83,7 @@ fun CalendarScreen(navController: NavController, context: Context, database: Goa
             modifier = Modifier
                 .background(colorResource(id = R.color.darkBackground))
                 .fillMaxSize()
-                .padding(it) // Use it instead of a fixed padding value
+                .padding(it)
         ) {
             CalendarHeader()
             Spacer(modifier = Modifier.height(16.dp))

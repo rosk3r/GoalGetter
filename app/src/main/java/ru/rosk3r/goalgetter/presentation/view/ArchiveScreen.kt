@@ -48,7 +48,6 @@ fun ArchiveScreen(navController: NavController, context: Context, database: Goal
         tasksState.value = updatedTasks
     }
     val onStatus: (Task) -> Unit = { updatedTask ->
-        // Например, обновление списка задач
         tasksState.value = tasksState.value.map { task ->
             if (task.id == updatedTask.id) {
                 updatedTask
@@ -57,7 +56,6 @@ fun ArchiveScreen(navController: NavController, context: Context, database: Goal
             }
         }
 
-        // Дополнительно: сохранение изменения в базе данных
         coroutineScope.launch {
             try {
                 withContext(Dispatchers.IO) {

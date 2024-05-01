@@ -68,7 +68,6 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         tasksState.value = updatedTasks
     }
     val onStatus: (Task) -> Unit = { updatedTask ->
-        // Например, обновление списка задач
         tasksState.value = tasksState.value.map { task ->
             if (task.id == updatedTask.id) {
                 updatedTask
@@ -76,8 +75,6 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 task
             }
         }
-
-        // Дополнительно: сохранение изменения в базе данных
 
         coroutineScope.launch {
             try {
@@ -100,7 +97,6 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         }
     }
 
-// Load tasks asynchronously
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
@@ -194,11 +190,8 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                         val task = taskRequest.request(taskRequest)
 
                         task?.let {
-                            // Create a new list with the new task at the beginning
                             val updatedTasks = listOf(it) + tasksState.value
-                            // Update the state to trigger recomposition
                             tasksState.value = updatedTasks
-                            // Save to the local database
                             database.taskDao().insert(it)
                         }
                     }

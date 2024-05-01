@@ -108,7 +108,7 @@ fun TaskItem(
     val openDeleteDialog = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var isCompleted by remember { mutableStateOf(task.isCompleted) }
-    // Перезапускаем состояние при изменении задачи
+
     LaunchedEffect(task) {
         isCompleted = task.isCompleted
         expanded = false
@@ -135,7 +135,6 @@ fun TaskItem(
                 Checkbox(
                     checked = isCompleted,
                     onCheckedChange = { checked ->
-                        // Обновляем состояние на основе значения чекбокса
                         isCompleted = checked
                         coroutineScope.launch {
                             delay(600)
@@ -188,7 +187,7 @@ fun TaskItem(
                 }
                 if (openEditDialog.value) {
                     EditTaskDialog(
-                        openDialog = openEditDialog, // Передаем состояние диалога
+                        openDialog = openEditDialog,
                         onEdit = { title ->
                             coroutineScope.launch {
                                 withContext(Dispatchers.IO) {
@@ -198,12 +197,11 @@ fun TaskItem(
 
                                     database.taskDao().updateTitleById(task.id, title)
 
-                                    // Сообщаем родительскому компоненту об изменении
                                     onEdit(task.copy(title = title))
                                 }
                             }
 
-                            openEditDialog.value = false // Закрываем диалог после редактирования
+                            openEditDialog.value = false
                             expanded = !expanded
                         },
                         onCancel = {
@@ -251,7 +249,7 @@ fun ArchivedTaskItem(
     val openDeleteDialog = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var isCompleted by remember { mutableStateOf(task.isCompleted) }
-    // Перезапускаем состояние при изменении задачи
+
     LaunchedEffect(task) {
         isCompleted = task.isCompleted
         expanded = false
@@ -278,14 +276,12 @@ fun ArchivedTaskItem(
                 Checkbox(
                     checked = isCompleted,
                     onCheckedChange = { checked ->
-                        // Обновляем состояние на основе значения чекбокса
                         isCompleted = checked
                         coroutineScope.launch {
                             delay(600)
                             onStatus(task.copy(isCompleted = checked))
                         }
 
-                        // Отправляем обновление родителю
                         if (!checked) {
                             myToast(context, "task has been unarchived")
                         }
