@@ -31,6 +31,7 @@ import ru.rosk3r.goalgetter.data.remote.dto.request.UsersStatsRequest
 import ru.rosk3r.goalgetter.data.remote.dto.response.UserStatsResponse
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
 import ru.rosk3r.goalgetter.presentation.components.UserStatsList
+import ru.rosk3r.goalgetter.presentation.components.myToast
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
@@ -43,11 +44,15 @@ fun GoalScreen(navController: NavController, context: Context, database: GoalGet
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val userStatsResponse: List<UserStatsResponse>? = withContext(Dispatchers.IO) {
-                val usersStatsRequest = UsersStatsRequest()
-                usersStatsRequest.request(usersStatsRequest)
+            try {
+                val userStatsResponse: List<UserStatsResponse>? = withContext(Dispatchers.IO) {
+                    val usersStatsRequest = UsersStatsRequest()
+                    usersStatsRequest.request(usersStatsRequest)
+                }
+                userStatsState.value = userStatsResponse
+            } catch (e: Exception) {
+                myToast(context, "something went wrong")
             }
-            userStatsState.value = userStatsResponse
         }
     }
 

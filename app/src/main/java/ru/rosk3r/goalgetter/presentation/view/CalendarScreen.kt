@@ -35,6 +35,7 @@ import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.CalendarBody
 import ru.rosk3r.goalgetter.presentation.components.CalendarHeader
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
+import ru.rosk3r.goalgetter.presentation.components.myToast
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 import java.time.LocalDateTime
 
@@ -47,10 +48,14 @@ fun CalendarScreen(navController: NavController, context: Context, database: Goa
     // Load tasks asynchronously
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val tasks = withContext(Dispatchers.IO) {
-                database.taskDao().getAll().first()
+            try {
+                val tasks = withContext(Dispatchers.IO) {
+                    database.taskDao().getAll().first()
+                }
+                tasksState.value = tasks
+            } catch (e: Exception) {
+                myToast(context, "something went wrong")
             }
-            tasksState.value = tasks
         }
     }
 

@@ -150,19 +150,24 @@ fun SignInScreen(navController: NavController, context: Context, database: GoalG
                         myToast(context, "email is incorrect")
                     }
 
-                    if (email.isNotEmpty() and password.isNotEmpty() and email.isValidEmail() ) {
+                    if (email.isNotEmpty() and password.isNotEmpty() and email.isValidEmail()) {
                         coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
-                                val signInRequest = SignInRequest(email, password)
-                                session = signInRequest.request()
+                            try {
+                                withContext(Dispatchers.IO) {
+                                    val signInRequest = SignInRequest(email, password)
+                                    session = signInRequest.request()
 
-                                session?.let { database.sessionDao().insert(it) }
+                                    session?.let { database.sessionDao().insert(it) }
+                                }
+
+                                myToast(context, "welcome back")
+                                delay(300)
+                                navController.navigate("screen_1")
+                            } catch (e: Exception) {
+                                myToast(context, "something went wrong")
                             }
-
-                            myToast(context, "welcome back")
-                            delay(300)
-                            navController.navigate("screen_1")
                         }
+
                     }
                 },
                 colors = ButtonDefaults.buttonColors(

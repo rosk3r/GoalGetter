@@ -175,20 +175,23 @@ fun SignUpScreen(navController: NavController, context: Context, database: GoalG
                         myToast(context, "email is incorrect")
                     }
 
-                    if (username.isNotEmpty() and email.isNotEmpty() and
-                        email.isValidEmail() and password.isNotEmpty()
-                    ) {
+                    if (username.isNotEmpty() and email.isNotEmpty() and email.isValidEmail() and password.isNotEmpty()) {
+
                         coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
-                                val signUpRequest = SignUpRequest(username, email, password)
-                                session = signUpRequest.request()
+                            try {
+                                withContext(Dispatchers.IO) {
+                                    val signUpRequest = SignUpRequest(username, email, password)
+                                    session = signUpRequest.request()
 
-                                session?.let { database.sessionDao().insert(it) }
+                                    session?.let { database.sessionDao().insert(it) }
+                                }
+
+                                myToast(context, "user ${username}, created")
+                                delay(300)
+                                navController.navigate("screen_1")
+                            } catch (e: Exception) {
+                                myToast(context, "something went wrong or username already taken")
                             }
-
-                            myToast(context, "user ${username}, created")
-                            delay(300)
-                            navController.navigate("screen_1")
                         }
                     }
                 },
@@ -208,8 +211,7 @@ fun SignUpScreen(navController: NavController, context: Context, database: GoalG
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 32.dp)
                 .clickable {
-                    navController.navigate("signIn") {
-                    }
+                    navController.navigate("signIn")
                 }
         )
     }

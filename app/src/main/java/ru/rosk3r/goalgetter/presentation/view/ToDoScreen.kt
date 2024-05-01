@@ -41,6 +41,7 @@ import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
 import ru.rosk3r.goalgetter.presentation.components.NewTaskDialog
 import ru.rosk3r.goalgetter.presentation.components.TaskList
+import ru.rosk3r.goalgetter.presentation.components.myToast
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 
 @OptIn(ExperimentalComposeUiApi::class, kotlinx.coroutines.DelicateCoroutinesApi::class)
@@ -77,38 +78,50 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         }
 
         // Дополнительно: сохранение изменения в базе данных
+
         coroutineScope.launch {
-            withContext(Dispatchers.IO) {
-                database.taskDao().updateStatusById(updatedTask.id, updatedTask.isCompleted)
+            try {
                 withContext(Dispatchers.IO) {
+
+                    database.taskDao().updateStatusById(updatedTask.id, updatedTask.isCompleted)
                     withContext(Dispatchers.IO) {
-                        val session = database.sessionDao().getOne()
-                        val taskRequest = TaskStatusChangeRequest(session.token, updatedTask.id)
-                        taskRequest.request(taskRequest)
+                        withContext(Dispatchers.IO) {
+                            val session = database.sessionDao().getOne()
+                            val taskRequest =
+                                TaskStatusChangeRequest(session.token, updatedTask.id)
+                            taskRequest.request(taskRequest)
+                        }
                     }
+
                 }
+            } catch (e: Exception) {
+                myToast(context, "something went wrong")
             }
         }
     }
 
-    // Load tasks asynchronously
+// Load tasks asynchronously
     LaunchedEffect(Unit) {
         coroutineScope.launch {
-            val tasks = withContext(Dispatchers.IO) {
-                val session = database.sessionDao().getOne()
-                val taskRequest = TaskRequest(session.token)
-                taskRequest.request(taskRequest)?.reversed()
-            }
+            try {
+                val tasks = withContext(Dispatchers.IO) {
+                    val session = database.sessionDao().getOne()
+                    val taskRequest = TaskRequest(session.token)
+                    taskRequest.request(taskRequest)?.reversed()
+                }
 
-            tasks?.let {
-                tasksState.value = it
-                withContext(Dispatchers.IO) {
-                    database.taskDao().deleteAll()
+                tasks?.let {
+                    tasksState.value = it
+                    withContext(Dispatchers.IO) {
+                        database.taskDao().deleteAll()
 
-                    it.forEach { task ->
-                        database.taskDao().insert(task)
+                        it.forEach { task ->
+                            database.taskDao().insert(task)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                myToast(context, "something went wrong")
             }
         }
     }
@@ -143,7 +156,11 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 .fillMaxSize()
                 .padding(it)
         ) {
-            TaskList(tasksState.value.filter { !it.isCompleted }, database, onDelete, onEdit, onStatus, context)
+            TaskList(
+                tasksState.value.filter {
+                    !it.isCompleted
+                }, database, onDelete, onEdit, onStatus, context
+            )
 
             FloatingActionButton(
                 onClick = {
@@ -170,19 +187,23 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         openDialog = openDialog,
         onSave = { title ->
             coroutineScope.launch {
-                withContext(Dispatchers.IO) {
-                    val session = database.sessionDao().getOne()
-                    val taskRequest = TaskCreateRequest(session.token, title)
-                    val task = taskRequest.request(taskRequest)
+                try {
+                    withContext(Dispatchers.IO) {
+                        val session = database.sessionDao().getOne()
+                        val taskRequest = TaskCreateRequest(session.token, title)
+                        val task = taskRequest.request(taskRequest)
 
-                    task?.let {
-                        // Create a new list with the new task at the beginning
-                        val updatedTasks = listOf(it) + tasksState.value
-                        // Update the state to trigger recomposition
-                        tasksState.value = updatedTasks
-                        // Save to the local database
-                        database.taskDao().insert(it)
+                        task?.let {
+                            // Create a new list with the new task at the beginning
+                            val updatedTasks = listOf(it) + tasksState.value
+                            // Update the state to trigger recomposition
+                            tasksState.value = updatedTasks
+                            // Save to the local database
+                            database.taskDao().insert(it)
+                        }
                     }
+                } catch (e: Exception) {
+                    myToast(context, "something went wrong")
                 }
             }
         }

@@ -145,16 +145,23 @@ fun SettingsScreen(navController: NavController, context: Context, database: Goa
                                 onClick = {
                                     if (newUsername.isNotEmpty()) {
                                         coroutineScope.launch {
-                                            withContext(Dispatchers.IO) {
-                                                val usernameChangeRequest = UsernameChangeRequest(
-                                                    database.sessionDao().getOne().token,
-                                                    newUsername
-                                                )
-                                                usernameChangeRequest.request(usernameChangeRequest)
-                                            }
+                                            try {
+                                                withContext(Dispatchers.IO) {
+                                                    val usernameChangeRequest =
+                                                        UsernameChangeRequest(
+                                                            database.sessionDao().getOne().token,
+                                                            newUsername
+                                                        )
+                                                    usernameChangeRequest.request(
+                                                        usernameChangeRequest
+                                                    )
+                                                }
 
-                                            myToast(context, "username has been changed")
-                                            changeLoginExpanded = !changeLoginExpanded
+                                                myToast(context, "username has been changed")
+                                                changeLoginExpanded = !changeLoginExpanded
+                                            } catch (e: Exception) {
+                                                myToast(context, "something went wrong")
+                                            }
                                         }
                                     } else {
                                         myToast(context, "username field is empty")
@@ -219,16 +226,23 @@ fun SettingsScreen(navController: NavController, context: Context, database: Goa
                                 onClick = {
                                     if (newPassword.isNotEmpty()) {
                                         coroutineScope.launch {
-                                            withContext(Dispatchers.IO) {
-                                                val passwordChangeRequest = PasswordChangeRequest(
-                                                    database.sessionDao().getOne().token,
-                                                    newPassword
-                                                )
-                                                passwordChangeRequest.request(passwordChangeRequest)
-                                            }
+                                            try {
+                                                withContext(Dispatchers.IO) {
+                                                    val passwordChangeRequest =
+                                                        PasswordChangeRequest(
+                                                            database.sessionDao().getOne().token,
+                                                            newPassword
+                                                        )
+                                                    passwordChangeRequest.request(
+                                                        passwordChangeRequest
+                                                    )
+                                                }
 
-                                            myToast(context, "password has been changed")
-                                            changePasswordExpanded = !changeLoginExpanded
+                                                myToast(context, "password has been changed")
+                                                changePasswordExpanded = !changeLoginExpanded
+                                            } catch (e: Exception) {
+                                                myToast(context, "something went wrong")
+                                            }
                                         }
                                     } else {
                                         myToast(context, "password field is empty")
@@ -253,11 +267,15 @@ fun SettingsScreen(navController: NavController, context: Context, database: Goa
                     Button(
                         onClick = {
                             coroutineScope.launch {
-                                withContext(Dispatchers.IO) {
-                                    val signOutRequest =
-                                        SignOutRequest(database.sessionDao().getOne().token)
-                                    database.sessionDao().deleteAll()
-                                    signOutRequest.request(signOutRequest)
+                                try {
+                                    withContext(Dispatchers.IO) {
+                                        val signOutRequest =
+                                            SignOutRequest(database.sessionDao().getOne().token)
+                                        database.sessionDao().deleteAll()
+                                        signOutRequest.request(signOutRequest)
+                                    }
+                                } catch (e: Exception) {
+                                    myToast(context, "something went wrong")
                                 }
                             }
                             navController.navigate("signUp")
