@@ -26,18 +26,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.rosk3r.goalgetter.R
-import ru.rosk3r.goalgetter.data.remote.dto.request.TaskRequest
 import ru.rosk3r.goalgetter.domain.model.Task
 import ru.rosk3r.goalgetter.presentation.components.CalendarBody
 import ru.rosk3r.goalgetter.presentation.components.CalendarHeader
 import ru.rosk3r.goalgetter.presentation.components.MyNavigationBar
 import ru.rosk3r.goalgetter.presentation.components.myToast
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
-import java.time.LocalDateTime
 
 @Composable
 fun CalendarScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {

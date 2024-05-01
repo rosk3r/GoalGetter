@@ -53,9 +53,7 @@ class MainActivity : ComponentActivity() {
         navigationBarColor: Color
     ) {
         window.statusBarColor = statusBarColor.toArgb()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            window.navigationBarColor = navigationBarColor.toArgb()
-        }
+        window.navigationBarColor = navigationBarColor.toArgb()
     }
 }
 
