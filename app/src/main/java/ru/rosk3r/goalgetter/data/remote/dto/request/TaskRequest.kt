@@ -32,13 +32,13 @@ class TaskRequest(
             val responseData = response.body?.string()
             println("Response body: $responseData")
 
-            try {
+            return try {
                 val itemType = object : TypeToken<List<Task>>() {}.type
                 tasks = Gson().fromJson<List<Task>>(responseData, itemType)
-                return tasks
+                tasks
             } catch (e: Exception) {
                 println("Response was not successful: ${e.message}")
-                return null
+                null
             }
         } catch (e: IOException) {
             e.printStackTrace()
