@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val database = Room.databaseBuilder(
                 applicationContext,
-                GoalGetterDatabase::class.java, "CharacterDatabase"
+                GoalGetterDatabase::class.java, "GoalGetterDatabase"
             ).build()
 
             var startDestination = "signUp"
