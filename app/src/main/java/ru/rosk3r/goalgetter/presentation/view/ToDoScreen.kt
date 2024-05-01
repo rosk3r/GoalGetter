@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -49,7 +50,7 @@ import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 fun ToDoScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 0
     val coroutineScope = rememberCoroutineScope()
-
+    val isLoading = remember { mutableStateOf(true) }
     val tasksState = remember { mutableStateOf(emptyList<Task>()) }
     val openDialog = remember { mutableStateOf(false) }
 
@@ -79,7 +80,6 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
         coroutineScope.launch {
             try {
                 withContext(Dispatchers.IO) {
-
                     database.taskDao().updateStatusById(updatedTask.id, updatedTask.isCompleted)
                     withContext(Dispatchers.IO) {
                         withContext(Dispatchers.IO) {
@@ -89,7 +89,6 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                             taskRequest.request(taskRequest)
                         }
                     }
-
                 }
             } catch (e: Exception) {
                 myToast(context, "something went wrong")
@@ -116,6 +115,7 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                         }
                     }
                 }
+                isLoading.value = false
             } catch (e: Exception) {
                 myToast(context, "something went wrong")
             }
@@ -152,11 +152,28 @@ fun ToDoScreen(navController: NavController, context: Context, database: GoalGet
                 .fillMaxSize()
                 .padding(it)
         ) {
-            TaskList(
-                tasksState.value.filter {
-                    !it.isCompleted
-                }, database, onDelete, onEdit, onStatus, context
-            )
+            if (isLoading.value) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(45.dp),
+                        color = Color.White
+                    )
+                }
+            } else {
+                TaskList(
+                    tasksState.value.filter {
+                        !it.isCompleted
+                    },
+                    database,
+                    onDelete,
+                    onEdit,
+                    onStatus,
+                    context
+                )
+            }
 
             FloatingActionButton(
                 onClick = {

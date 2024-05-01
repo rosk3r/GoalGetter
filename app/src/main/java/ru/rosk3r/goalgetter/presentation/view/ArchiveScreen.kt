@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,7 +43,7 @@ import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 fun ArchiveScreen(navController: NavController, context: Context, database: GoalGetterDatabase) {
     val selectedTab = 1
     val coroutineScope = rememberCoroutineScope()
-
+    val isLoading = remember { mutableStateOf(true) }
     val tasksState = remember { mutableStateOf(emptyList<Task>()) }
 
     val onDelete = { taskToDelete: Task ->
@@ -129,13 +132,25 @@ fun ArchiveScreen(navController: NavController, context: Context, database: Goal
                 .fillMaxSize()
                 .padding(it)
         ) {
-            ArchivedTaskList(
-                tasksState.value.filter { it.isCompleted },
-                database,
-                onDelete,
-                onStatus,
-                context
-            )
+            if (isLoading.value) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(45.dp),
+                        color = Color.White
+                    )
+                }
+            } else {
+                ArchivedTaskList(
+                    tasksState.value.filter { it.isCompleted },
+                    database,
+                    onDelete,
+                    onStatus,
+                    context
+                )
+            }
         }
     }
 }
