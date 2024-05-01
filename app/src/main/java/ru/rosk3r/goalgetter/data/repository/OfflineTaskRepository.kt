@@ -1,4 +1,4 @@
-package ru.rosk3r.goalgetter.data.remote.repository
+package ru.rosk3r.goalgetter.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.rosk3r.goalgetter.data.local.TaskDao

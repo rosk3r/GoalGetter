@@ -1,12 +1,12 @@
 package ru.rosk3r.goalgetter.data
 
 import android.content.Context
-import ru.rosk3r.goalgetter.data.remote.repository.OfflineSessionRepository
-import ru.rosk3r.goalgetter.data.remote.repository.OfflineTaskRepository
-import ru.rosk3r.goalgetter.data.remote.repository.OfflineUserRepository
-import ru.rosk3r.goalgetter.data.remote.repository.SessionRepository
-import ru.rosk3r.goalgetter.data.remote.repository.TaskRepository
-import ru.rosk3r.goalgetter.data.remote.repository.UserRepository
+import ru.rosk3r.goalgetter.data.repository.OfflineSessionRepository
+import ru.rosk3r.goalgetter.data.repository.OfflineTaskRepository
+import ru.rosk3r.goalgetter.data.repository.OfflineUserRepository
+import ru.rosk3r.goalgetter.data.repository.SessionRepository
+import ru.rosk3r.goalgetter.data.repository.TaskRepository
+import ru.rosk3r.goalgetter.data.repository.UserRepository
 import ru.rosk3r.goalgetter.util.GoalGetterDatabase
 
 interface AppContainer {
