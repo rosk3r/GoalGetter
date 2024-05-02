@@ -71,6 +71,7 @@ fun ArchiveScreen(navController: NavController, context: Context, database: Goal
                         }
                     }
                 }
+                isLoading.value = false
             } catch (e: Exception) {
                 myToast(context, "something went wrong")
             }
@@ -96,6 +97,7 @@ fun ArchiveScreen(navController: NavController, context: Context, database: Goal
                         }
                     }
                 }
+                isLoading.value = false
             } catch (e: Exception) {
                 myToast(context, "something went wrong")
             }

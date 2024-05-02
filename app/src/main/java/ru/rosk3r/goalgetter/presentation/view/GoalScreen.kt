@@ -53,6 +53,7 @@ fun GoalScreen(navController: NavController, context: Context, database: GoalGet
                     usersStatsRequest.request(usersStatsRequest)
                 }
                 userStatsState.value = userStatsResponse
+                isLoading.value = false
             } catch (e: Exception) {
                 myToast(context, "something went wrong")
             }
